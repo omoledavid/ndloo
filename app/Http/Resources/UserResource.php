@@ -19,7 +19,7 @@ class UserResource extends JsonResource
             'profile' => $this->profile,
             'country' => $this->country,
             'images' => $this->images,
-            'myLikes' => $this->myLikes->pluck('recipient')->toArray(),
+            'myLikes' => $this->myLikes()->where('actor', auth()->id())->pluck('recipient')->toArray(),
             'blockList' => $this->blockList->pluck('recipient')->toArray(),
             ...parent::toArray($request)];
     }

@@ -134,10 +134,8 @@ class User extends Authenticatable
 
     public function myLikes(): HasMany
     {
-        return $this->hasMany(Reaction::class, 'actor')->where([
-            ['type', ReactionTypes::LIKE->value],
-            ['actor', auth()->user()?->id],
-        ]) ?? [];
+        return $this->hasMany(Reaction::class, 'actor')
+            ->where('type', ReactionTypes::LIKE->value);
     }
 
     public function blockList(): HasMany|array
