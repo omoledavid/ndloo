@@ -29,4 +29,8 @@ class BoostPlan extends Model
     {
         return $this->belongsToMany(User::class)->withPivot('active');
     }
+    public function activeUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(BoostPlanUser::class)->withPivot('active');
+    }
 }

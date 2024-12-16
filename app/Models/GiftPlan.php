@@ -11,7 +11,9 @@ class GiftPlan extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['amount'];
+//    protected $fillable = ['amount'];
+
+    protected $guarded = ['id'];
 
     public function amount(): Attribute
     {

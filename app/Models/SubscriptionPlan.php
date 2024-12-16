@@ -13,23 +13,24 @@ class SubscriptionPlan extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = [
-        'name',
-        'desc',
-        'price',
-        'chat',
-        'call',
-        'hide_profile',
-        'save_messages',
-        'period',
-        'subscription_category_id',
-    ];
+//    protected $fillable = [
+//        'name',
+//        'desc',
+//        'price',
+//        'chat',
+//        'call',
+//        'hide_profile',
+//        'save_messages',
+//        'period',
+//        'subscription_category_id',
+//    ];
+    protected $guarded = ['id'];
 
     public function price(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => $value / 100,
-            set: fn (int $value) => $value * 100
+            get: fn(int $value) => $value / 100,
+            set: fn(int $value) => $value * 100
         );
     }
 

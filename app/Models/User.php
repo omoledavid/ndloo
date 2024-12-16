@@ -132,7 +132,7 @@ class User extends Authenticatable
         return $this->belongsToMany(ProfileInfo::class)->withPivot('content');
     }
 
-    public function myLikes(): HasMany|array
+    public function myLikes(): HasMany
     {
         return $this->hasMany(Reaction::class, 'actor')->where([
             ['type', ReactionTypes::LIKE->value],

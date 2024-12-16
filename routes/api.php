@@ -9,6 +9,8 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\GiftController;
+use App\Http\Controllers\Admin\GiftController as AdminGiftController;
+use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
@@ -31,18 +33,38 @@ Route::controller(AuthController::class)->group(function () {
 });
 //Admin
 Route::controller(ManageUsersController::class)->group(function () {
-    Route::get('/all-users', 'allUsers');
+    Route::post('/all-users', 'allUsers');
+    Route::get('/users-stats', 'stats');
     Route::get('/user/{user}', 'viewUser');
     Route::get('/banned/user/{user}', 'bannedUser');
+    Route::get('/activate/user/{user}', 'activateUser');
 });
 
 Route::controller(AdminBoostController::class)->group(function () {
     Route::get('/boost', 'boost');
+    Route::get('/boost/stats', 'boostStats');
     Route::post('/boost', 'createBoost');
+    Route::post('/boost/edit/{boost}', 'updateBoost');
     Route::get('/boost/{boostPlan}', 'viewBoostPlan');
     Route::get('/boost/edit/{plan}', 'viewUser');
     Route::get('/banned/user/{user}', 'bannedUser');
 });
+
+Route::controller(AdminGiftController::class)->group(function () {
+    Route::get('/gifts', 'getGifts');
+    Route::post('/gifts', 'createGift');
+    Route::post('/gifts/edit/{gift}', 'editGift');
+    Route::get('/gifts/{id}', 'viewGifts');
+});
+
+Route::controller(AdminSubscriptionController::class)->group(function () {
+    Route::get('/subscriptions', 'getSubscriptions');
+    Route::get('/subscription/{subscription}', 'getSubscription');
+    Route::post('/subscription/edit/{subscription}', 'editSubscription');
+    Route::post('/subscription/create', 'createSubscription');
+});
+
+//End of admin api
 
 Route::controller(PasswordResetController::class)->group(function () {
     Route::post('/account/recover', 'sendCode');
