@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Contracts\Enums\SettingStates;
+use App\Contracts\Interfaces\SettingInterface;
 use App\Models\PersonalAccessToken;
 use App\Support\Helpers\SmsSender;
+use App\Support\Repositories\SettingRepository;
+use App\Support\Services\SettingService;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -26,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
                 number: SettingStates::TWILIO_NUMBER->getValue(),
             );
         });
+        $this->app->bind(SettingInterface::class, SettingRepository::class);
     }
 
     /**

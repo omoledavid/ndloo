@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbuseController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoostController;
 use App\Http\Controllers\ChatController;
@@ -50,18 +51,28 @@ Route::controller(AdminBoostController::class)->group(function () {
     Route::get('/banned/user/{user}', 'bannedUser');
 });
 
+//Gifts
 Route::controller(AdminGiftController::class)->group(function () {
     Route::get('/gifts', 'getGifts');
+    Route::get('/gifts/stats', 'giftStats');
     Route::post('/gifts', 'createGift');
     Route::post('/gifts/edit/{gift}', 'editGift');
     Route::get('/gifts/{id}', 'viewGifts');
 });
 
+//Subscriptions
 Route::controller(AdminSubscriptionController::class)->group(function () {
     Route::get('/subscriptions', 'getSubscriptions');
+    Route::get('/subscriptions/stats', 'subscriptionStat');
     Route::get('/subscription/{subscription}', 'getSubscription');
     Route::post('/subscription/edit/{subscription}', 'editSubscription');
     Route::post('/subscription/create', 'createSubscription');
+});
+
+Route::controller(SettingController::class)->group(function () {
+    Route::get('/settings', 'getSettings');
+    Route::get('/settings/categories', 'getCategories');
+    Route::post('/settings', 'updateSettings');
 });
 
 //End of admin api

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SubscriptionPlan;
+use App\Models\SubscriptionPlanUser;
 use App\Support\Services\BaseService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -75,4 +76,28 @@ class SubscriptionController extends BaseService
 
         return $this->errorResponse(message:'Subscription not created');
     }
+    public function subscriptionStat()
+    {
+        // Get monthly subscriber counts
+        $monthlySubscribers = SubscriptionPlanUser::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as subscriber_count')
+            ->groupBy('year', 'month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        // Format the result to make it more readable
+        $formattedMonthlySubscribers = $monthlySubscribers->map(function ($subscriber) {
+            return [
+                'year' => $subscriber->year,
+                'month' => $subscriber->month,
+                'subscriber_count' => $subscriber->subscriber_count,
+            ];
+        });
+
+        return $this->successResponse(data: [
+            'total_subscription' => SubscriptionPlan::count(),
+            'total_subscriber' => SubscriptionPlanUser::count(),
+            'subscriber_by_months' => $formattedMonthlySubscribers,
+        ]);
+    }
+
 }
