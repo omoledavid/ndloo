@@ -38,7 +38,7 @@ class GiftController extends BaseService
             return $this->errorResponse(message: 'Error uploading file');
         }
 
-        $icon = env('APP_URL') . "/storage/" . $uploaded;
+        $icon = env('APP_URL') . "/public/storage/" . $uploaded;
 
         if ($gift = GiftPlan::create([
             'name' => $request->name,
@@ -65,7 +65,7 @@ class GiftController extends BaseService
 
         if ($request->file('icon')) {
             $uploaded = FileUploadService::uploadFile($request->file('icon'), 'gifts');
-            $icon = env('APP_URL') . "/storage/" . $uploaded;
+            $icon = env('APP_URL') . "/public/storage/" . $uploaded;
         }
 
         if (!$uploaded) {
