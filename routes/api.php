@@ -85,7 +85,7 @@ Route::controller(PasswordResetController::class)->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(BoostController::class)->group(function () {
-        Route::get('/boost/plans', 'plans');
+        Route::get('/user-boost/plans', 'plans');
         Route::post('/profile/boost/{plan}', 'boost');
     });
 
