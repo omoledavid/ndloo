@@ -18,7 +18,7 @@ class BoostController extends Controller
         return $this->boostService->plans();
     }
 
-    public function boost(Request $request, BoostPlan $plan): JsonResponse
+    public function boost(Request $request, BoostPlan $plan)
     {
         return $this->boostService->boost($request, $plan);
     }
