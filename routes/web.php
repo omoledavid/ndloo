@@ -6,8 +6,13 @@ use App\Http\Controllers\PaymentController;
 Route::get('/payment/{channel}', function () {
     return view('payment');
 });
-Route::get('login', function (){
+Route::get('/', function (){
     return response()->json([
-        'message' => 'You are logged in'
-    ])->name('login');
+        'Ndloo api development in progress'
+    ]);
 });
+Route::get('/login', function () {
+    return response()->json([
+        'Login'
+    ]);
+})->name('login');

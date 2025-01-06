@@ -21,8 +21,10 @@ class ReactionService extends BaseService
         }
 
         $reactions = Reaction::query()
-            ->where('type', $request->query('action'))
-            ->where('actor', $request->user()->id)
+            ->where([
+                ['type', $request->query('action')],
+                ['actor', $request->user()->id],
+            ])
             ->orderBy('id', 'desc')
             ->with(['recipient', 'recipient.country', 'recipient.profile', 'recipient.images'])
             ->get();
