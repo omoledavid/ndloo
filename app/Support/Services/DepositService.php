@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Services;
 
+use App\Contracts\Enums\PaymentStatus;
 use App\Contracts\Enums\SettingStates;
 use App\Http\Requests\PaymentRequest;
 use App\Models\ExchangeRate;
@@ -55,6 +56,7 @@ class DepositService extends BaseService
             'type' => 'deposit',
             'reference' => $reference,
             'channel' => $channel,
+            'status' => PaymentStatus::PENDING,
             'currency' => $request->currency,
             'rate' => $rate->deposit_rate,
             'amount' => $request->amount,
@@ -68,9 +70,15 @@ class DepositService extends BaseService
 
             if ($paymentUrl) {
                 // Return the payment URL for the client to complete the payment
+                $payment = Payment::create($paymentData);
+                if(!$payment)
+                {
+                    return $this->errorResponse(__('responses.paymentFailed'));
+                }
                 return $this->successResponse(data: [
                     'payment_url' => $paymentUrl,
-                    'reference' => $reference
+                    'reference' => $reference,
+                    'payment' => $payment
                 ]);
             } else {
                 return $this->errorResponse(__('responses.paystackInitializationFailed'));

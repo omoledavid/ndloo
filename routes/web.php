@@ -11,8 +11,3 @@ Route::get('/', function (){
         'Ndloo api development in progress'
     ]);
 });
-Route::get('/login', function () {
-    return response()->json([
-        'Login'
-    ]);
-})->name('login');

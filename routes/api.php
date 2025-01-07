@@ -22,6 +22,9 @@ use App\Http\Controllers\Admin\ManageUsersController;
 use App\Http\Controllers\Admin\BoostController as AdminBoostController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/hey', function (){
+    return response()->json('Login');
+})->name('login');
 Route::controller(AuthController::class)->group(function () {
     Route::get('/countries', 'getCountries');
     Route::post('/register', 'allSignup');
@@ -83,6 +86,8 @@ Route::controller(PasswordResetController::class)->group(function () {
     Route::post('/account/password/reset', 'changePassword');
 });
 
+Route::get('paystack/payment/callback', [PaymentController::class, 'callback'])->name('paystack.callback');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(BoostController::class)->group(function () {
         Route::get('/user-boost/plans', 'plans');
@@ -128,7 +133,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/payment/info', 'generateInfo');
         Route::get('/payment/verify/{payment:reference}', 'verifyPayment');
     });
-    Route::get('paystack/payment/callback', [PaymentController::class, 'callback'])->name('paystack.callback');
 
 
     Route::controller(AccountController::class)->prefix('account')->group(function () {

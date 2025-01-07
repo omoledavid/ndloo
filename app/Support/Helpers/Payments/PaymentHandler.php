@@ -28,21 +28,22 @@ class PaymentHandler
             'user_id' => $payment->user_id,
             'amount' => $responseData['amount'],
             'channel' => $payment->channel,
-            'icon' => 'assets/img/'.$payment->channel.'.png',
-            'currency' => $responseData['currencyCode'],
+            'icon' => 'assets/img/' . $payment->channel . '.png',
+            'currency' => $responseData['currencyCode'] ?? $responseData['currency'],
             'usdAmount' => self::getUsdAmount(
                 $responseData['amount'],
-                $responseData['currencyCode'],
+                $responseData['currencyCode'] ?? $responseData['currency'],
                 $payment->rate
             ),
         ]);
     }
 
     public static function successfulPayment(
-        User $user,
-        Payment $payment,
+        User            $user,
+        Payment         $payment,
         TransactionData $txData
-    ): ?bool {
+    )
+    {
         //topup user wallet, delete payment and add transaction, and send notices
         try {
             DB::beginTransaction();
@@ -53,7 +54,7 @@ class PaymentHandler
 
             DB::commit();
 
-            $user->notify(new TopupSuccessNotice($user, $txData->usdAmount));
+//            $user->notify(new TopupSuccessNotice($user, $txData->usdAmount));
 
             return true;
         } catch (\Throwable $th) {
@@ -65,10 +66,11 @@ class PaymentHandler
     }
 
     public static function failedPayment(
-        User $user,
-        Payment $payment,
+        User            $user,
+        Payment         $payment,
         TransactionData $txData
-    ): ?bool {
+    ): ?bool
+    {
         $payment->delete();
         $user->notify(new TopupFailedNotice($user, $txData->usdAmount));
 

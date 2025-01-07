@@ -16,7 +16,12 @@ class Payment extends Model
         'type',
         'channel',
         'currency',
+        'status',
         'rate',
         'amount',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
