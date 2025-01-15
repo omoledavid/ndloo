@@ -18,7 +18,7 @@ class MatchService extends BaseService
         $matchArr = [];
 
         $profiles = (new MatchQueryBuilder($request))
-            ->countryFilter()
+//            ->countryFilter()
             ->nameFilter()
             ->ageFilter()
             ->genderFilter()
