@@ -6,6 +6,7 @@ namespace App\Support\Services;
 
 use App\Contracts\DataObjects\LocationData;
 use App\Models\ProfileInfo;
+use App\Models\User;
 use App\Support\Helpers\MatchQueryBuilder;
 use App\Support\Helpers\NearestLocation;
 use Illuminate\Http\JsonResponse;
@@ -39,10 +40,11 @@ class MatchService extends BaseService
         }
 
         $matches = $request->query('nearby') ? collect($matchArr)->sortKeys()->values() : collect($matchArr)->values();
+        $allUsers = User::all();
 
         return $this->successResponse(data: [
             'infos' => ProfileInfo::all()->groupBy('category'),
-            'matches' => $matches,
+            'matches' => $allUsers,
         ]);
     }
 }
