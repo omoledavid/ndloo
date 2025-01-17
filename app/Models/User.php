@@ -145,4 +145,8 @@ class User extends Authenticatable
             ['actor', auth()->user()?->id],
         ]) ?? [];
     }
+    public function myGift()
+    {
+        return $this->hasMany(UserGift::class);
+    }
 }

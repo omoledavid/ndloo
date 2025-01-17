@@ -55,6 +55,7 @@ return [
     'newMessage' => 'New message',
     'newLike' => 'New like',
     'likeMessage' => ':name liked your profile',
-    'cannotLike' => 'You can not like or unlike yourself'
+    'cannotLike' => 'You can not like or unlike yourself',
+    'giftNotMine' => 'Gift is not mine.',
 
 ];

@@ -113,6 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update', 'updateProfile');
         Route::post('/images/upload', 'uploadImages');
         Route::delete('/images/{image}/remove', 'removeImage');
+        Route::get('view-authuser/profile', 'viewAuthUser');
     });
 
     Route::controller(ReactionController::class)->prefix('actions')->group(function () {

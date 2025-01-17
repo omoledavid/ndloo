@@ -32,4 +32,9 @@ class ProfileController extends Controller
     {
         return $this->profileService->removeImage($image);
     }
+    public function viewAuthUser()
+    {
+        $user =  auth()->user();
+        return $user;
+    }
 }

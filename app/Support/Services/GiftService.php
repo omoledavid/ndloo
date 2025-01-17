@@ -45,6 +45,10 @@ class GiftService extends BaseService
     public function redeem(UserGift $gift, Request $request): JsonResponse
     {
         $gift->load('plan');
+        $giftIsMine = UserGift::where('user_id', $request->user()->id)->where('id', $gift->id)->first();
+        if (!$giftIsMine) {
+            return $this->errorResponse(__('responses.giftNotMine'));
+        }
 
         try {
 
@@ -69,7 +73,7 @@ class GiftService extends BaseService
             ])->delete();
 
             DB::commit();
-            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));
+//            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));
 
             return $this->successResponse(__('responses.giftRedeemed'));
         } catch (\Throwable $th) {
