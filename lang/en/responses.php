@@ -54,6 +54,7 @@ return [
     'invalidContent' => 'Your message contains censored words like :content',
     'newMessage' => 'New message',
     'newLike' => 'New like',
-    'likeMessage' => ':name liked your profile'
+    'likeMessage' => ':name liked your profile',
+    'cannotLike' => 'You can not like or unlike yourself'
 
 ];

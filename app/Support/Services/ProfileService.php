@@ -16,7 +16,7 @@ class ProfileService extends BaseService
 {
     public function profile(User $user): JsonResponse
     {
-        $user->load('profile');
+        $user->load('profile','images');
         $profileInfo = ProfileInfo::all()->groupBy('category');
         $profile = [];
 

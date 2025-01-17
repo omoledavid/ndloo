@@ -65,6 +65,11 @@ class ReactionService extends BaseService
     {
         $action = $request->query('action');
 
+        $userId = auth()->user()->id;
+        if($userId === $recipient->id){
+            return $this->errorResponse(__('responses.cannotLike'));
+        }
+
         // Validate action value
         if (! in_array($action, ['like', 'dislike'])) {
             return $this->errorResponse(__('responses.invalidAction'));
@@ -91,7 +96,8 @@ class ReactionService extends BaseService
             ['type', '=', $action],
             ['actor', '=', $request->user()->id],
             ['recipient', '=', $recipient->id],
-        ])->first();
+        ])
+            ->first();
 
         if (is_null($record)) {
             // Log creation action
