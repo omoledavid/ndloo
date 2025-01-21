@@ -33,7 +33,7 @@ trait HasResponse
             [
                 'status' => 'success',
                 'message' => trans($message),
-                'data' => $data,
+                'data' => $this->getData($data),
             ],
             Response::HTTP_OK
         );

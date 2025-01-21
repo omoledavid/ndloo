@@ -71,7 +71,7 @@ class ReactionService extends BaseService
         }
 
         // Validate action value
-        if (! in_array($action, ['like', 'dislike'])) {
+        if (! in_array($action, ['like', 'dislike', 'block'])) {
             return $this->errorResponse(__('responses.invalidAction'));
         }
 
