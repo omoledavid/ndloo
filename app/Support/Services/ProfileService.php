@@ -49,7 +49,7 @@ class ProfileService extends BaseService
 
         ProfileImage::create([
             'user_id' => $request->user()->id,
-            'image' => env('APP_URL').'/storage/'.$uploadedFile,
+            'image' => env('APP_URL').'/public/storage/'.$uploadedFile,
         ]);
 
         return $this->successResponse(__('responses.imagesUploaded'));

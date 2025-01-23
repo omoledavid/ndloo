@@ -36,46 +36,48 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/email/verify', 'verifyCode');
 });
 //Admin
-Route::controller(ManageUsersController::class)->group(function () {
-    Route::post('/all-users', 'allUsers');
-    Route::get('/users-stats', 'stats');
-    Route::get('/user/{user}', 'viewUser');
-    Route::get('/banned/user/{user}', 'bannedUser');
-    Route::get('/activate/user/{user}', 'activateUser');
-});
+Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
+    Route::controller(ManageUsersController::class)->group(function () {
+        Route::post('/all-users', 'allUsers');
+        Route::get('/users-stats', 'stats');
+        Route::get('/user/{user}', 'viewUser');
+        Route::get('/banned/user/{user}', 'bannedUser');
+        Route::get('/activate/user/{user}', 'activateUser');
+    });
 
-Route::controller(AdminBoostController::class)->group(function () {
-    Route::get('/boost', 'boost');
-    Route::get('/boost/stats', 'boostStats');
-    Route::post('/boost', 'createBoost');
-    Route::post('/boost/edit/{boost}', 'updateBoost');
-    Route::get('/boost/{boostPlan}', 'viewBoostPlan');
-    Route::get('/boost/edit/{plan}', 'viewUser');
-    Route::get('/banned/user/{user}', 'bannedUser');
-});
+    Route::controller(AdminBoostController::class)->group(function () {
+        Route::get('/boost', 'boost');
+        Route::get('/boost/stats', 'boostStats');
+        Route::post('/boost', 'createBoost');
+        Route::post('/boost/edit/{boost}', 'updateBoost');
+        Route::get('/boost/{boostPlan}', 'viewBoostPlan');
+        Route::get('/boost/edit/{plan}', 'viewUser');
+        Route::get('/banned/user/{user}', 'bannedUser');
+    });
 
 //Gifts
-Route::controller(AdminGiftController::class)->group(function () {
-    Route::get('/gifts', 'getGifts');
-    Route::get('/gifts/stats', 'giftStats');
-    Route::post('/gifts', 'createGift');
-    Route::post('/gifts/edit/{gift}', 'editGift');
-    Route::get('/gifts/{id}', 'viewGifts');
-});
+    Route::controller(AdminGiftController::class)->group(function () {
+        Route::get('/gifts', 'getGifts');
+        Route::get('/gifts/stats', 'giftStats');
+        Route::post('/gifts', 'createGift');
+        Route::post('/gifts/edit/{gift}', 'editGift');
+        Route::get('/gifts/{id}', 'viewGifts');
+    });
 
 //Subscriptions
-Route::controller(AdminSubscriptionController::class)->group(function () {
-    Route::get('/subscriptions', 'getSubscriptions');
-    Route::get('/subscriptions/stats', 'subscriptionStat');
-    Route::get('/subscription/{subscription}', 'getSubscription');
-    Route::post('/subscription/edit/{subscription}', 'editSubscription');
-    Route::post('/subscription/create', 'createSubscription');
-});
+    Route::controller(AdminSubscriptionController::class)->group(function () {
+        Route::get('/subscriptions', 'getSubscriptions');
+        Route::get('/subscriptions/stats', 'subscriptionStat');
+        Route::get('/subscription/{subscription}', 'getSubscription');
+        Route::post('/subscription/edit/{subscription}', 'editSubscription');
+        Route::post('/subscription/create', 'createSubscription');
+    });
 
-Route::controller(SettingController::class)->group(function () {
-    Route::get('/settings', 'getSettings');
-    Route::get('/settings/categories', 'getCategories');
-    Route::post('/settings', 'updateSettings');
+    Route::controller(SettingController::class)->group(function () {
+        Route::get('/settings', 'getSettings');
+        Route::get('/settings/categories', 'getCategories');
+        Route::post('/settings', 'updateSettings');
+    });
 });
 
 //End of admin api
