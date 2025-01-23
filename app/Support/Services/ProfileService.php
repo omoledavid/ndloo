@@ -60,10 +60,7 @@ class ProfileService extends BaseService
             $uploadedImages[] = env('APP_URL').'/public/storage/'.$uploadedFile;
         }
 
-        return $this->successResponse(data:[
-            'message' => __('responses.imagesUploaded'),
-            'uploaded_images' => $uploadedImages,
-        ]);
+        return $this->successResponse(__('responses.imagesUploaded'));
     }
 
     public function removeImage(ProfileImage $profileImage): JsonResponse
