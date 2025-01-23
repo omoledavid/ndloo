@@ -22,7 +22,8 @@ class UploadImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'images' => 'required|image|mimes:jpg,png,jpeg|mimetypes:image/jpeg,image/jpg,image/png',
+            'images' => 'required|array', // Ensure 'images' is an array
+            'images.*' => 'required|image|mimes:jpg,png,jpeg|mimetypes:image/jpeg,image/jpg,image/png',
         ];
     }
 }
