@@ -54,7 +54,10 @@ class RegistrationService extends BaseService
 
             DB::commit();
 
-            $user->notify(new VerifyEmailNotice($user, $token));
+            // $user->notify(new VerifyEmailNotice($user, $token));
+            notify($user, 'EVER_CODE', [
+                'code' => $token,
+            ], ['email']);
             $smsSender->send($this->getMessage($token), $user->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [
@@ -116,7 +119,10 @@ class RegistrationService extends BaseService
 
             DB::commit();
 
-            $user->notify(new VerifyEmailNotice($user, $token));
+            // $user->notify(new VerifyEmailNotice($user, $token));
+            notify($user, 'EVER_CODE', [
+                'code' => $token,
+            ], ['email']);
             $smsSender->send($this->getMessage($token), $user->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [

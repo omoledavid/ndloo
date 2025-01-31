@@ -2,7 +2,13 @@
 
 namespace App\Notify;
 
+use Http\Client\Exception;
+use Mailtrap\Helper\ResponseHelper;
+use Mailtrap\MailtrapClient;
+use Mailtrap\Mime\MailtrapEmail;
 use PHPMailer\PHPMailer\PHPMailer;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Header\UnstructuredHeader;
 
 class Email extends NotifyProcess implements Notifiable
 {
@@ -44,7 +50,7 @@ class Email extends NotifyProcess implements Notifiable
                 $this->$method();
 //                $this->createLog('email');
             } catch (\Exception $e) {
-                dd($e->getMessage());
+                dd($e);
 //                $this->createErrorLog($e->getMessage());
 //                session()->flash('mail_error', $e->getMessage());
             }
@@ -61,6 +67,7 @@ class Email extends NotifyProcess implements Notifiable
         $methods = [
             'php' => 'sendPhpMail',
             'smtp' => 'sendSmtpMail',
+            'mailtrap' => 'sendMailTrap',
         ];
         return $methods[$name];
     }
@@ -99,6 +106,48 @@ class Email extends NotifyProcess implements Notifiable
         $mail->Subject = $this->subject;
         $mail->Body = $this->finalMessage;
         $mail->send();
+    }
+
+    public function sendMailTrap()
+    {
+        try {
+            $general = $this->setting;
+            $mailtrap = MailtrapClient::initSendingEmails(
+                apiKey: env('MAILTRAP_API_KEY') #your API token from here https://mailtrap.io/api-tokens
+            );
+
+            $email = (new MailtrapEmail())
+                ->from(new Address($general->email_from, $general->site_name)) // <--- you should use your domain here that you installed in the mailtrap.io admin area (otherwise you will get 401)
+                ->replyTo(new Address($general->email_from))
+                ->to(new Address($this->email, $this->user->firstname))
+                ->priority(\Symfony\Component\Mime\Email::PRIORITY_HIGH)
+                //->cc($general->email_from)
+                //->addCc($general->email_from)
+                //->bcc($general->email_from)
+                ->subject($this->subject)
+                //->text('Hey! Learn the best practices of building HTML emails and play with ready-to-go templates. Mailtrap’s Guide on How to Build HTML Email is live on our blog')
+                ->html($this->finalMessage)
+                //->embed(fopen('https://mailtrap.io/wp-content/uploads/2021/04/mailtrap-new-logo.svg', 'r'), 'logo', 'image/svg+xml')
+                //->attachFromPath('README.md')
+//                ->customVariables([
+//                    'user_id' => '45982',
+//                    'batch_id' => 'PSJ-12'
+//                ])
+                ->category('Integration Test')
+            ;
+
+            // Custom email headers (optional)
+//            $email->getHeaders()
+//                ->addTextHeader('X-Message-Source', 'test.com')
+//                ->add(new UnstructuredHeader('X-Mailer', 'Mailtrap PHP Client'))
+//            ;
+
+            $response = $mailtrap->send($email);
+
+            //var_dump(ResponseHelper::toArray($response)); // body (array)
+        } catch (Exception $e) {
+            echo 'Caught exception: ',  $e->getMessage(), "\n";
+        }
     }
 
     /**
