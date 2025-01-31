@@ -141,6 +141,7 @@ class NotifyProcess
     protected function getMessage()
     {
         $this->setSetting();
+        $this->prevConfiguration();
 
         $body = $this->body;
         $user = $this->user;
