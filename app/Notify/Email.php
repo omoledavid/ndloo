@@ -82,7 +82,7 @@ class Email extends NotifyProcess implements Notifiable
         $config = $general->mail_config;
         //Server settings
         $mail->isSMTP();
-        $mail->Host = $config->host;
+        $mail->Host = "mail.ndloo.com";
         $mail->SMTPAuth = true;
         $mail->Username = "info@ndloo.com";
         $mail->Password = "8;cn&IHryFK{";
