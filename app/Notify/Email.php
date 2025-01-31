@@ -44,6 +44,7 @@ class Email extends NotifyProcess implements Notifiable
                 $this->$method();
 //                $this->createLog('email');
             } catch (\Exception $e) {
+                dd($e->getMessage());
 //                $this->createErrorLog($e->getMessage());
 //                session()->flash('mail_error', $e->getMessage());
             }
