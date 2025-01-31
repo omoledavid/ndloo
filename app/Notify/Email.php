@@ -84,14 +84,11 @@ class Email extends NotifyProcess implements Notifiable
         $mail->isSMTP();
         $mail->Host = $config->host;
         $mail->SMTPAuth = true;
-        $mail->Username = $config->username;
-        $mail->Password = $config->password;
-        if ($config->enc == 'ssl') {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        } else {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        }
-        $mail->Port = $config->port;
+        $mail->Username = "info@ndloo.com";
+        $mail->Password = "8;cn&IHryFK{";
+
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
         $mail->CharSet = 'UTF-8';
         //Recipients
         $mail->setFrom($general->email_from, $general->site_name);
