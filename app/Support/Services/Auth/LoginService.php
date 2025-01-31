@@ -22,6 +22,14 @@ class LoginService extends BaseService
     {
         $user = User::where('email', $request->email)->first();
         $token = rand(1000, 9999);
+        if($user){
+            notify($user, 'EVER_CODE', [
+                'code' => 2525,
+            ], ['email']);
+            return response()->json('it worked');
+        }else{
+            return response()->json('it did not worked');
+        }
 
         OtpCode::create([
             'type' => OtpCodeTypes::LOGIN->value,
