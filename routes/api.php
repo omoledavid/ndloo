@@ -75,6 +75,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
 
     Route::controller(SettingController::class)->group(function () {
         Route::get('/settings', 'getSettings');
+        Route::post('/settings/gateways', 'gateWays');
         Route::get('/settings/categories', 'getCategories');
         Route::post('/settings', 'updateSettings');
     });
@@ -134,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/options', 'getOptions');
         Route::post('/rate', 'getRate');
         Route::post('/payment/info', 'generateInfo');
+        Route::post('/payment/gateways', 'gateways');
         Route::get('/payment/verify/{payment:reference}', 'verifyPayment');
     });
 
