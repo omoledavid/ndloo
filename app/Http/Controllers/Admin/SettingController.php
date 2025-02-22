@@ -51,7 +51,7 @@ class SettingController extends BaseService
         $validatedData = $request->validate([
             'name' => 'required|exists:payment_options,name',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'slug' => 'required|unique:payment_options,slug',
+            'slug' => 'nullable|unique:payment_options,slug',
             'status' => 'required|in:0,1',
         ]);
 
