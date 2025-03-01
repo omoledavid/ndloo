@@ -17,8 +17,8 @@ class CreateUserData extends BaseData
         public readonly string $phone,
         public readonly string|int $country_id,
         public readonly string $gender,
-        public readonly string|float $latitude,
-        public readonly string|float $longitude
+        public readonly string|float|null $latitude = null,
+        public readonly string|float|null $longitude = null
     ) {}
 
     public static function fromRequest(object $request): self
