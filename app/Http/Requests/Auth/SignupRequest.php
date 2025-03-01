@@ -31,8 +31,8 @@ class SignupRequest extends FormRequest
             'email' => 'required|email:filter|unique:App\Models\User',
             'phone' => 'required|string',
             'gender' => ['required', Rule::in(['male', 'female', 'other'])],
-            'latitude' => 'required|string',
-            'longitude' => 'required|string',
+            'latitude' => 'nullable|string',
+            'longitude' => 'nullable|string',
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
