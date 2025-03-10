@@ -27,7 +27,7 @@ class EmailVerificationService extends BaseService
                 ]);
             }
 
-            $user->notify(new WelcomeNotice($user));
+            //$user->notify(new WelcomeNotice($user));
 
             return $this->successResponse(__('responses.emailVerified'), [
                 'token' => $user->createToken('Auth token')->plainTextToken,
