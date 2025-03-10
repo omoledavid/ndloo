@@ -26,16 +26,16 @@ class SettingController extends BaseService
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'tranzak-app-id' => 'required',
-            'tranzak-api-key' => 'required',
-            'tranzak-api-url' => 'required',
-            'tranzak-return-url' => 'required',
-            'tranzak-webhook-auth-key' => 'required',
-            'agora-app-id' => 'required',
-            'agora-app-certificate' => 'required',
-            'twilio-sid' => 'required',
-            'twilio-auth-token' => 'required',
-            'twilio-number' => 'required',
+            'tranzak-app-id' => 'nullable',
+            'tranzak-api-key' => 'nullable',
+            'tranzak-api-url' => 'nullable',
+            'tranzak-return-url' => 'nullable',
+            'tranzak-webhook-auth-key' => 'nullable',
+            'agora-app-id' => 'nullable',
+            'agora-app-certificate' => 'nullable',
+            'twilio-sid' => 'nullable',
+            'twilio-auth-token' => 'nullable',
+            'twilio-number' => 'nullable',
 
         ]);
         return $this->settingService->update($request);

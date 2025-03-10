@@ -44,7 +44,7 @@ class SubscriptionService extends BaseService
 
             DB::commit();
 
-            $request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
+            //$request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
 
             return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name.' '.$plan->category?->name]));
         } catch (\Throwable $th) {
