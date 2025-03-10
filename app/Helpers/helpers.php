@@ -22,7 +22,11 @@ function gs($key = null)
 function ss($key = null)
 {
     $general = Setting::query()->where('item', $key)->first();
+    if($general)
+    {
         return @$general->value;
+    }
+    return 0;
 }
 
 function notify($user, $templateName, $shortCodes = null, $sendVia = null, $createLog = true, $clickValue = null)
