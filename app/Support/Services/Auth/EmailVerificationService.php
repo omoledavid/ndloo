@@ -31,7 +31,9 @@ class EmailVerificationService extends BaseService
             }
 
             //$user->notify(new WelcomeNotice($user));
-            $this->autoSub($user);
+            if (ss('auto-subscription') == 1) {
+                $this->autoSub($user);
+            }
 
             return $this->successResponse(__('responses.emailVerified'), [
                 'token' => $user->createToken('Auth token')->plainTextToken,
@@ -43,6 +45,7 @@ class EmailVerificationService extends BaseService
             return $this->errorResponse(__('responses.invalidCode'));
         }
     }
+
     private function autoSub($user)
     {
         try {
@@ -58,7 +61,7 @@ class EmailVerificationService extends BaseService
 
             //$request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
 
-            return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name.' '.$plan->category?->name]));
+            return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name . ' ' . $plan->category?->name]));
         } catch (\Throwable $th) {
             Log::error($th);
 
