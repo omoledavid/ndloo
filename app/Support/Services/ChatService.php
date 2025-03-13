@@ -137,27 +137,36 @@ class ChatService extends BaseService
 
     public function chatMessages(object $request, User $user): JsonResponse
     {
-        $messages = Message::query()
-            ->where([
-                ['sender', auth()->user()->id],
-                ['recipient', $user->id],
+        $messagesQuery = Message::query()
+            ->where(function ($query) use ($user) {
+                $query->where([
+                    ['sender', auth()->id()],
+                    ['recipient', $user->id],
+                ])->orWhere([
+                    ['sender', $user->id],
+                    ['recipient', auth()->id()],
+                ]);
+            })
+            ->with([
+                'sender', 'recipient',
+                'sender.images', 'recipient.images',
+                'sender.profile', 'recipient.profile'
             ])
-            ->orWhere([
-                ['sender', $user->id],
-                ['recipient', auth()->user()->id],
-            ])
-            ->with(['sender', 'recipient', 'sender.images', 'recipient.images', 'sender.profile', 'recipient.profile'])
-            ->orderBy('created_at', 'asc')
-            ->limit(self::LIMIT);
+            ->orderBy('created_at', 'asc');
 
-        return $this->successResponse(data: [
-            'messages' => MessageResource::collection(
-                $request->query('offset')
-                    ? $messages->offset($request->query('offset'))->get()
-                    : $messages->get()
-            ),
+        // Apply offset if provided
+        if ($request->query('offset')) {
+            $messagesQuery->offset($request->query('offset'));
+        }
+
+        $messages = $messagesQuery->limit(self::LIMIT)->get();
+
+        return $this->successResponse(data:[
+            'messages' => MessageResource::collection($messages),
         ]);
     }
+
+
 
     public function markRead(object $request, User $user): JsonResponse
     {
