@@ -139,13 +139,12 @@ class ChatService extends BaseService
     {
         $messagesQuery = Message::query()
             ->where(function ($query) use ($user) {
-                $query->where([
-                    ['sender', auth()->id()],
-                    ['recipient', $user->id],
-                ])->orWhere([
-                    ['sender', $user->id],
-                    ['recipient', auth()->id()],
-                ]);
+                $query->where('sender', auth()->id())
+                    ->where('recipient', $user->id);
+            })
+            ->orWhere(function ($query) use ($user) {
+                $query->where('sender', $user->id)
+                    ->where('recipient', auth()->id());
             })
             ->with([
                 'sender', 'recipient',
@@ -165,6 +164,7 @@ class ChatService extends BaseService
             'messages' => MessageResource::collection($messages),
         ]);
     }
+
 
 
 
