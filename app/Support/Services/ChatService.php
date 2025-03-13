@@ -22,58 +22,66 @@ class ChatService extends BaseService
     {
         $results = collect();
 
+        // Base query to get messages where the user is either sender or recipient
         $baseQuery = Message::query()
-            ->where('sender', auth()->user()->id)
-            ->orWhere('recipient', auth()->user()->id)
+            ->where(function ($query) {
+                $query->where('sender', auth()->user()->id)
+                    ->orWhere('recipient', auth()->user()->id);
+            })
             ->with(['sender', 'recipient'])
             ->latest()
             ->limit(self::LIMIT);
 
+        // Check if offset is provided for pagination
         $messages = $request->query('offset')
-            ? $baseQuery->offset($request->query('offset'))->get()//->reverse()
+            ? $baseQuery->offset($request->query('offset'))->get() // Apply offset if given
             : $baseQuery->get();
 
-        $users = array_unique(array_merge($messages->groupBy('sender')->keys()->toArray(), $messages->groupBy('recipient')->keys()->toArray()));
+        // Get unique users involved in the conversation
+        $users = array_unique(array_merge(
+            $messages->pluck('sender')->toArray(),
+            $messages->pluck('recipient')->toArray()
+        ));
 
+        // Loop through each user to get unread messages count and other details
         foreach ($users as $user_id) {
             if ($user_id !== auth()->user()->id) {
+                // Get the count of unread messages from this user to the authenticated user
+                $unreadMessagesCount = Message::where([
+                    ['sender', $user_id],
+                    ['recipient', auth()->user()->id],
+                    ['read', MessageStates::UNREAD]
+                ])->count();
+
+                // Fetch the user details including images and profile
+                $user = User::with(['images', 'profile'])->find($user_id);
+
+                // Get the most recent message from this user to the authenticated user
+                $lastMessage = Message::where(function ($query) use ($user_id) {
+                    $query->where('sender', $user_id)
+                        ->where('recipient', auth()->user()->id);
+                })
+                    ->orWhere(function ($query) use ($user_id) {
+                        $query->where('sender', auth()->user()->id)
+                            ->where('recipient', $user_id);
+                    })
+                    ->latest()
+                    ->first(); // Get the latest message between the two users
+
+                // Add the results to the collection
                 $results->push([
-                    'unreadMessages' => Message::where([
-                        ['sender', $user_id],
-                        ['recipient', auth()->user()->id],
-                        ['read', MessageStates::UNREAD],
-                    ])->count(),
-                    'user' => User::with(['images', 'profile'])->find($user_id),
-                    'messages' => Message::where([
-                        ['sender', $user_id],
-                        ['recipient', auth()->user()->id],
-                    ])
-                        ->orWhere([
-                            ['sender', auth()->user()->id],
-                            ['recipient', $user_id],
-                        ])->with(['sender', 'recipient'])->orderBy('created_at', 'desc')->limit(100)->get(),
+                    'unreadMessages' => $unreadMessagesCount,
+                    'user' => $user,
+                    'lastMessage' => $lastMessage
                 ]);
             }
         }
-        /*
-        $filteredMessages = $messages->groupBy(['sender', 'recipient'])->get(auth()->user()->id) ?? [];
-
-        foreach ($filteredMessages as $user_id => $messages) {
-            $results->push([
-                'unreadMessages' => Message::Where([
-                    ['sender', $user_id],
-                    ['recipient', auth()->user()->id],
-                    ['read', MessageStates::UNREAD],
-                ])->count(),
-                'user' => User::with(['images', 'profile'])->find($user_id),
-                'messages' => $messages,
-            ]);
-        }*/
 
         return $this->successResponse(data: [
             'messages' => $results,
         ]);
     }
+
 
     public function sendMessage(object $request, User $recipient): JsonResponse
     {
@@ -115,7 +123,7 @@ class ChatService extends BaseService
                 'message_count' => $currentSubscription->pivot->message_count + 1,
             ]);
             $message->load('sender');
-            
+
             PushNotificationJob::dispatchAfterResponse(
                 $recipient,
                 NotificationData::fromArray([

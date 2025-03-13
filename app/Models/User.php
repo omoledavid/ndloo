@@ -149,4 +149,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserGift::class);
     }
+    public function getFullnameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 }
