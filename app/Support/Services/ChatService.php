@@ -44,14 +44,17 @@ class ChatService extends BaseService
                         ['read', MessageStates::UNREAD],
                     ])->count(),
                     'user' => User::with(['images', 'profile'])->find($user_id),
-                    'messages' => Message::where([
-                        ['sender', $user_id],
-                        ['recipient', auth()->user()->id],
-                    ])
-                        ->orWhere([
-                            ['sender', auth()->user()->id],
-                            ['recipient', $user_id],
-                        ])->with(['sender', 'recipient'])->orderBy('created_at', 'desc')->limit(100)->get(),
+                    'messages' => Message::where(function ($query) use ($user_id) {
+                        $query->where('sender', $user_id)
+                            ->where('recipient', auth()->id());
+                    })->orWhere(function ($query) use ($user_id) {
+                        $query->where('sender', auth()->id())
+                            ->where('recipient', $user_id);
+                    })
+                        ->with(['sender', 'recipient'])
+                        ->orderBy('created_at', 'desc')
+                        ->limit(100)
+                        ->get(),
                 ]);
             }
         }
@@ -120,7 +123,7 @@ class ChatService extends BaseService
                 $recipient,
                 NotificationData::fromArray([
                     'title' => __('responses.newMessage'),
-                    'body' => $request->user()->firstname.': '.$request->message,
+                    'body' => $request->user()->firstname . ': ' . $request->message,
                     'data' => []
                 ])
             );
@@ -160,12 +163,10 @@ class ChatService extends BaseService
 
         $messages = $messagesQuery->limit(self::LIMIT)->get();
 
-        return $this->successResponse(data:[
+        return $this->successResponse(data: [
             'messages' => MessageResource::collection($messages),
         ]);
     }
-
-
 
 
     public function markRead(object $request, User $user): JsonResponse
