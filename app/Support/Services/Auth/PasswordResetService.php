@@ -56,7 +56,7 @@ class PasswordResetService extends BaseService
 
         if ($user->update(['password' => $request->password])) {
             //send password reset notice
-            $user->notify(new PasswordResetNotice($user));
+            //$user->notify(new PasswordResetNotice($user));
 
             return $this->successResponse(__('responses.passwordChanged'));
         }
