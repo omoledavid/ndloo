@@ -82,11 +82,11 @@ class GiftJob implements ShouldQueue
                 DB::commit();
 
                 //create notification
-                try {
-                    $sender->notify(new GiftSentNotice($this->recipient, $this->giftPlan->amount));
-                    $this->recipient->notify(new GiftReceivedNotice($sender, $this->giftPlan->amount));
-                } catch (\Throwable $th) {
-                }
+//                try {
+//                    $sender->notify(new GiftSentNotice($this->recipient, $this->giftPlan->amount));
+//                    $this->recipient->notify(new GiftReceivedNotice($sender, $this->giftPlan->amount));
+//                } catch (\Throwable $th) {
+//                }
 
                 //send push notification
             } catch (\Throwable $th) {
