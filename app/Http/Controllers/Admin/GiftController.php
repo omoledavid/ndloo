@@ -107,7 +107,7 @@ class GiftController extends BaseService
         $totalGiftsRevenue = UserGift::with('plan')->get()->sum(function ($gift) {
             return $gift->plan->amount;
         });
-        
+
 
 
         // Total gifts and purchases
@@ -131,6 +131,30 @@ class GiftController extends BaseService
 
         // Get monthly sales data
         $monthlySales = UserGift::selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                MONTH(user_gifts.created_at) as month,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
+                    ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+                    ->groupBy('year', 'month')
+                    ->orderBy('year', 'asc')
+                    ->orderBy('month', 'asc')
+                    ->get();
+        $weeklyPurchase = UserGift::where('status', 'redeemed')->selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                WEEK(user_gifts.created_at, 1) as week,
+                DAYOFWEEK(user_gifts.created_at) as day_number,
+                DAYNAME(user_gifts.created_at) as day,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
+            ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
+            ->groupBy('year', 'week', 'day_number', 'day')
+            ->orderBy('day_number', 'asc')
+            ->get();
+
+        // Get monthly sales data
+        $monthlyPurchase = UserGift::where('status', 'redeemed')->selectRaw("
                 YEAR(user_gifts.created_at) as year,
                 MONTH(user_gifts.created_at) as month,
                 COALESCE(SUM(plan.amount), 0) as total_sales

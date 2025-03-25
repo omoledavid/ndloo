@@ -31,7 +31,7 @@ class GiftService extends BaseService
     public function myPlans(): JsonResponse
     {
         return $this->successResponse(data: [
-            'plans' => UserGift::where('user_id', auth()->user()->id)->with('plan')->get(),
+            'plans' => UserGift::where('user_id', auth()->user()->id)->where('status', '!=', 'redeemed')->with('plan')->get(),
         ]);
     }
 
@@ -67,10 +67,13 @@ class GiftService extends BaseService
                 'usdAmount' => $gift->plan->amount / 2,
             ])->toArray());
 
-            UserGift::where([
-                ['user_id', $request->user()->id],
-                ['gift_plan_id', $gift->plan->id],
-            ])->delete();
+//            UserGift::where([
+//                ['user_id', $request->user()->id],
+//                ['gift_plan_id', $gift->plan->id],
+//            ])->delete();
+            $gift->update([
+                'status' => 'redeemed'
+            ]);
 
             DB::commit();
 //            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));
