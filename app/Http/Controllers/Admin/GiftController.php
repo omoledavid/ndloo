@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Enums\GiftStatus;
 use App\Http\Controllers\Controller;
 use App\Models\GiftPlan;
 use App\Models\UserGift;
@@ -87,6 +88,18 @@ class GiftController extends BaseService
 
         return redirect()->back()->withErrors(['error' => 'Error updating gift']);
     }
+
+    public function statusToggle(GiftPlan $gift)
+    {
+        $giftStatus = $gift->status == GiftStatus::DISABLE->value ? GiftStatus::ENABLE->value : GiftStatus::DISABLE->value;
+
+        $gift->update([
+            'status' => $giftStatus
+        ]);
+
+        return $this->successResponse('Gift status updated successfully');
+    }
+
 
     public function giftStats()
     {

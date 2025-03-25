@@ -62,6 +62,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/gifts/stats', 'giftStats');
         Route::post('/gifts', 'createGift');
         Route::post('/gifts/edit/{gift}', 'editGift');
+        Route::get('/gifts/status/{gift}', 'statusToggle');
         Route::get('/gifts/{id}', 'viewGifts');
     });
 

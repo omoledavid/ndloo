@@ -45,11 +45,19 @@ class ManageUsersController extends BaseService
         }
 
         // Get the filtered users
-        $allUsers = UserResource::collection($query->paginate(2));
+        $allUsers = UserResource::collection($query->paginate(10));
 
         // Return the filtered users
         return $this->successResponse(data: [
             'all_users' => $allUsers,
+            'pagination' => [
+                'current_page' => $allUsers->currentPage(),
+                'per_page' => $allUsers->perPage(),
+                'total' => $allUsers->total(),
+                'last_page' => $allUsers->lastPage(),
+                'next_page_url' => $allUsers->nextPageUrl(),
+                'prev_page_url' => $allUsers->previousPageUrl(),
+            ],
         ]);
     }
 

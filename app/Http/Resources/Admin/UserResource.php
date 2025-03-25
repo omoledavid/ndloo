@@ -39,14 +39,6 @@ class UserResource extends JsonResource
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
             ],
-//            'pagination' => [
-//                'current_page' => $this->currentPage(),
-//                'per_page' => $this->perPage(),
-//                'total' => $this->total(),
-//                'last_page' => $this->lastPage(),
-//                'next_page_url' => $this->nextPageUrl(),
-//                'prev_page_url' => $this->previousPageUrl(),
-//            ],
         ];
     }
 }
