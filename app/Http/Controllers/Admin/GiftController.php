@@ -104,9 +104,10 @@ class GiftController extends BaseService
     public function giftStats()
     {
         // Total revenue calculation
-        $totalGiftsRevenue = UserGift::with('plan')->get()->sum(function ($gift) {
-            return $gift->plan->amount;
-        });
+        $allgifts = UserGift::with('plan')->get();
+//        $totalGiftsRevenue = UserGift::with('plan')->get();
+        $totalGiftsRevenue = $allgifts->sum('amount');
+
 
         // Total gifts and purchases
         $totalGiftsPurchased = UserGift::count();
