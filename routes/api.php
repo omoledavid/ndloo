@@ -53,7 +53,6 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/boost/edit/{boost}', 'updateBoost');
         Route::get('/boost/{boostPlan}', 'viewBoostPlan');
         Route::get('/boost/edit/{plan}', 'viewUser');
-        Route::get('/banned/user/{user}', 'bannedUser');
     });
 
 //Gifts
