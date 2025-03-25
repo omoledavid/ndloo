@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Services;
 
 use App\Contracts\DataObjects\TransactionData;
+use App\Contracts\Enums\GiftStatus;
 use App\Contracts\Enums\TransactionIcons;
 use App\Contracts\Enums\TransactionTypes;
 use App\Http\Resources\GiftPlanResource;
@@ -24,7 +25,7 @@ class GiftService extends BaseService
     public function plans(): JsonResponse
     {
         return $this->successResponse(data: [
-            'plans' => GiftPlanResource::collection(GiftPlan::all()),
+            'plans' => GiftPlanResource::collection(GiftPlan::where('status', GiftStatus::ENABLE)->get()),
         ]);
     }
 
