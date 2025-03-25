@@ -140,18 +140,18 @@ class GiftController extends BaseService
                     ->orderBy('year', 'asc')
                     ->orderBy('month', 'asc')
                     ->get();
-//        $weeklySales = UserGift::where('status', 'redeemed')->selectRaw("
-//                YEAR(user_gifts.created_at) as year,
-//                WEEK(user_gifts.created_at, 1) as week,
-//                DAYOFWEEK(user_gifts.created_at) as day_number,
-//                DAYNAME(user_gifts.created_at) as day,
-//                COALESCE(SUM(plan.amount), 0) as total_sales
-//            ")
-//            ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-//            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
-//            ->groupBy('year', 'week', 'day_number', 'day')
-//            ->orderBy('day_number', 'asc')
-//            ->get();
+        $weeklySales = UserGift::where('user_gifts.status', 'redeemed')->selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                WEEK(user_gifts.created_at, 1) as week,
+                DAYOFWEEK(user_gifts.created_at) as day_number,
+                DAYNAME(user_gifts.created_at) as day,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
+            ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
+            ->groupBy('year', 'week', 'day_number', 'day')
+            ->orderBy('day_number', 'asc')
+            ->get();
 
         // Get monthly sales data
         $monthlySales = UserGift::where('user_gifts.status', 'redeemed') // Add table alias
@@ -178,8 +178,13 @@ class GiftController extends BaseService
 
         // Initialize arrays with zero values
         $weeklyPurchaseData = [];
+        $weeklySaleData = [];
         foreach ($weekDays as $day) {
             $weeklyPurchaseData[$day] = [
+                'label' => $day,
+                'value' => 0
+            ];
+            $weeklySaleData[$day] = [
                 'label' => $day,
                 'value' => 0
             ];
@@ -189,9 +194,13 @@ class GiftController extends BaseService
         foreach ($weeklyPurchase as $sale) {
             $weeklyPurchaseData[$sale->day]['value'] = $sale->total_sales;
         }
+        foreach ($weeklySales as $sale) {
+            $weeklyPurchaseData[$sale->day]['value'] = $sale->total_sales;
+        }
 
         // Convert back to indexed array
         $weeklyPurchaseData = array_values($weeklyPurchaseData);
+        $weeklySaleData = array_values($weeklySaleData);
 
         // Initialize arrays with zero values for months
         $monthlyPurchaseData = [];
@@ -233,7 +242,7 @@ class GiftController extends BaseService
                 'byMonth' => $monthlyPurchaseData,
             ],
             'total_gift_sales' => [
-                'byWeek' => [],
+                'byWeek' => $weeklySaleData,
                 'byMonth' => $monthlySalesData
             ]
         ]);
