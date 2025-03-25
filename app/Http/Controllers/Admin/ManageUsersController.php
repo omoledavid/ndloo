@@ -105,6 +105,19 @@ class ManageUsersController extends BaseService
             'subscription' => $user->subscriptions()->first(),
         ]);
     }
+    public function editUserInfo(User $user, Request $request)
+    {
+        return $request->all();
+        $user->profile()->detach(array_keys($request->details));
+
+        foreach ($request->details as $id => $content) {
+            $request->user()->profile()->attach($id, ['content' => $content]);
+        }
+        return $this->successResponse('User premium access revoked', [
+            'user' => new UserResource($user),
+            'subscription' => $user->subscriptions()->first(),
+        ]);
+    }
 
     public function stats(): JsonResponse
     {

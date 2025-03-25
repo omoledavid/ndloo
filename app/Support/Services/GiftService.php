@@ -72,7 +72,7 @@ class GiftService extends BaseService
 //                ['user_id', $request->user()->id],
 //                ['gift_plan_id', $gift->plan->id],
 //            ])->delete();
-            $gift->update([
+            $giftIsMine->update([
                 'status' => 'redeemed'
             ]);
 
