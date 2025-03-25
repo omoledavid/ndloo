@@ -113,12 +113,20 @@ class GiftController extends BaseService
         $totalGiftPlans = GiftPlan::count();
 
         // Weekly sales data
-        $weeklySales = UserGift::selectRaw('YEAR(user_gifts.created_at) as year, WEEK(user_gifts.created_at) as week, SUM(plan.amount) as total_sales')
+        $weeklySales = UserGift::selectRaw("
+        YEAR(user_gifts.created_at) as year,
+        WEEK(user_gifts.created_at, 1) as week,
+        DAYOFWEEK(user_gifts.created_at) as day_number,
+        DAYNAME(user_gifts.created_at) as day,
+        SUM(plan.amount) as total_sales
+    ")
             ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-            ->groupBy('year', 'week')
-            ->orderBy('year', 'asc')
-            ->orderBy('week', 'asc')
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for the current week
+            ->groupBy('year', 'week', 'day_number', 'day')
+            ->orderBy('day_number', 'asc') // Orders days correctly from Sunday to Saturday
             ->get();
+
+
 
         // Monthly sales data
         $monthlySales = UserGift::selectRaw('YEAR(user_gifts.created_at) as year, MONTH(user_gifts.created_at) as month, SUM(plan.amount) as total_sales')
@@ -131,7 +139,7 @@ class GiftController extends BaseService
         // Format weekly sales data for chart
         $weeklySalesData = $weeklySales->map(function ($sale) {
             return [
-                'label' => "Week {$sale->week}, {$sale->year}",
+                'label' => "{$sale->day}, Week {$sale->week}, {$sale->year}",
                 'value' => $sale->total_sales,
             ];
         });
@@ -148,6 +156,7 @@ class GiftController extends BaseService
         return $this->successResponse(data: [
             'general_stats' => [
                 'total_gifts' => $totalGiftPlans,
+                'gift_profit' => 0,
                 'total_gifts_purchased' => $totalGiftsPurchased,
                 'total_gift_revenue' => $totalGiftsRevenue . ' USD',
             ],
