@@ -154,16 +154,19 @@ class GiftController extends BaseService
 //            ->get();
 
         // Get monthly sales data
-        $monthlySales = UserGift::where('status', 'redeemed')->selectRaw("
-                YEAR(user_gifts.created_at) as year,
-                MONTH(user_gifts.created_at) as month,
-                COALESCE(SUM(plan.amount), 0) as total_sales
-            ")
-                    ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-                    ->groupBy('year', 'month')
-                    ->orderBy('year', 'asc')
-                    ->orderBy('month', 'asc')
-                    ->get();
+        $monthlySales = UserGift::where('user_gifts.status', 'redeemed') // Add table alias
+                    ->selectRaw("
+                    YEAR(user_gifts.created_at) as year,
+                    MONTH(user_gifts.created_at) as month,
+                    COALESCE(SUM(plan.amount), 0) as total_sales
+                ")
+                        ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+                        ->groupBy('year', 'month')
+                        ->orderBy('year', 'asc')
+                        ->orderBy('month', 'asc')
+                        ->get();
+
+
 
         // Reference arrays for all days and months
         $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -192,13 +195,13 @@ class GiftController extends BaseService
 
         // Initialize arrays with zero values for months
         $monthlyPurchaseData = [];
-        $monthlySales = [];
+        $monthlySalesData = [];
         foreach ($months as $num => $name) {
             $monthlyPurchaseData[$num] = [
                 'label' => "$name",
                 'value' => 0
             ];
-            $monthlySales[$num] = [
+            $monthlySalesData[$num] = [
                 'label' => "$name",
                 'value' => 0
             ];
