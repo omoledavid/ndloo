@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbuseController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\ProfileInfoController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoostController;
@@ -37,15 +38,23 @@ Route::controller(AuthController::class)->group(function () {
 });
 //Admin
 Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
+    //Manage user
     Route::controller(ManageUsersController::class)->group(function () {
         Route::post('/all-users', 'allUsers');
         Route::get('/users-stats', 'stats');
         Route::get('/user/{user}', 'viewUser');
         Route::get('/banned/user/{user}', 'bannedUser');
-        Route::get('/info/user/{user}', 'editUserInfo');
+        Route::post('/info/user/{user}', 'editUserInfo');
         Route::get('/activate/user/{user}', 'activateUser');
         Route::get('/premium/user/{user}', 'premiumAccess');
         Route::get('/deactivate-premium/user/{user}', 'premiumAccessRevoke');
+    });
+    Route::controller(ProfileInfoController::class)->group(function () {
+        Route::prefix('admin')->group(function () {
+            Route::get('/profile/info', 'profileInfo');
+            Route::post('/profile/info', 'saveProfileInfo');
+            Route::put('/profile/info', 'updateProfileInfo');
+        });
     });
 
     Route::controller(AdminBoostController::class)->group(function () {

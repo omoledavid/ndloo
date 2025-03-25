@@ -74,7 +74,6 @@ class GiftService extends BaseService
             ])->first();
             $redeemedGift->status = 'redeemed';
             $redeemedGift->save();
-            Log::info('gift was redeemed', ['data' => $redeemedGift->toArray()]);
 
             DB::commit();
 //            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));

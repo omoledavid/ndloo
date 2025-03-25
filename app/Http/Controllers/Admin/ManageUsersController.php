@@ -107,15 +107,13 @@ class ManageUsersController extends BaseService
     }
     public function editUserInfo(User $user, Request $request)
     {
-        return $request->all();
         $user->profile()->detach(array_keys($request->details));
 
         foreach ($request->details as $id => $content) {
             $request->user()->profile()->attach($id, ['content' => $content]);
         }
-        return $this->successResponse('User premium access revoked', [
-            'user' => new UserResource($user),
-            'subscription' => $user->subscriptions()->first(),
+        return $this->successResponse('User Account info updated', [
+            'user' => new UserResource($user)
         ]);
     }
 
