@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/user/{user}', 'viewUser');
         Route::get('/banned/user/{user}', 'bannedUser');
         Route::get('/activate/user/{user}', 'activateUser');
+        Route::get('/premium/user/{user}', 'premiumAccess');
     });
 
     Route::controller(AdminBoostController::class)->group(function () {

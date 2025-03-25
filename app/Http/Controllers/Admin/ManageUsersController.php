@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Contracts\Enums\UserStates;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\UserResource;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Support\Services\BaseService;
 use Carbon\Carbon;
@@ -43,7 +45,7 @@ class ManageUsersController extends BaseService
         }
 
         // Get the filtered users
-        $allUsers = $query->get();
+        $allUsers = UserResource::collection($query->paginate(2));
 
         // Return the filtered users
         return $this->successResponse(data: [
@@ -76,6 +78,11 @@ class ManageUsersController extends BaseService
         return $this->successResponse(data: [
             'activated_user' => $user,
         ]);
+    }
+    public function premiumAccess(User $user)
+    {
+        $user->subscriptions()->attach(SubscriptionPlan::first());
+        return $this->successResponse('User has been granted premium access');
     }
 
     public function stats(): JsonResponse
