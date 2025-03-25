@@ -168,7 +168,7 @@ class GiftController extends BaseService
         $monthlySalesData = [];
         foreach ($months as $num => $name) {
             $monthlySalesData[$num] = [
-                'label' => "$name ",
+                'label' => "$name",
                 'value' => 0
             ];
         }
