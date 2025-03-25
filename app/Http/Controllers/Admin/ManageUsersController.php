@@ -97,6 +97,15 @@ class ManageUsersController extends BaseService
         ]);
     }
 
+    public function premiumAccessRevoke(User $user)
+    {
+        $user->subscriptions()->detach();
+        return $this->successResponse('User premium access revoked', [
+            'user' => new UserResource($user),
+            'subscription' => $user->subscriptions()->first(),
+        ]);
+    }
+
     public function stats(): JsonResponse
     {
         return $this->successResponse(data: [
