@@ -68,11 +68,11 @@ class GiftService extends BaseService
                 'usdAmount' => $gift->plan->amount / 2,
             ])->toArray());
 
-//            UserGift::where([
-//                ['user_id', $request->user()->id],
-//                ['gift_plan_id', $gift->plan->id],
-//            ])->delete();
-            $giftIsMine->update([
+            $redeemedGift = UserGift::where([
+                ['user_id', $request->user()->id],
+                ['gift_plan_id', $gift->plan->id],
+            ])->first();
+            $redeemedGift->update([
                 'status' => 'redeemed'
             ]);
 
