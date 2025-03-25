@@ -24,7 +24,8 @@ class ManageUsersController extends BaseService
         if ($request->has('name') && $request->name != '') {
             $query->where(function ($query) use ($request) {
                 $query->where('firstname', 'like', '%' . $request->name . '%')
-                    ->orWhere('lastname', 'like', '%' . $request->name . '%');
+                    ->orWhere('lastname', 'like', '%' . $request->name . '%')
+                    ->orWhere('email', 'like', '%' . $request->name . '%');
             });
         }
 
@@ -90,7 +91,10 @@ class ManageUsersController extends BaseService
     public function premiumAccess(User $user)
     {
         $user->subscriptions()->attach(SubscriptionPlan::first());
-        return $this->successResponse('User has been granted premium access');
+        return $this->successResponse('User has been granted premium access', [
+            'user' => new UserResource($user),
+            'subscription' => $user->subscriptions()->first(),
+        ]);
     }
 
     public function stats(): JsonResponse
