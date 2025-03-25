@@ -113,44 +113,74 @@ class GiftController extends BaseService
         $totalGiftPlans = GiftPlan::count();
 
         // Weekly sales data
+        // Get weekly sales data
         $weeklySales = UserGift::selectRaw("
         YEAR(user_gifts.created_at) as year,
         WEEK(user_gifts.created_at, 1) as week,
         DAYOFWEEK(user_gifts.created_at) as day_number,
         DAYNAME(user_gifts.created_at) as day,
-        SUM(plan.amount) as total_sales
+        COALESCE(SUM(plan.amount), 0) as total_sales
     ")
             ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for the current week
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
             ->groupBy('year', 'week', 'day_number', 'day')
-            ->orderBy('day_number', 'asc') // Orders days correctly from Sunday to Saturday
+            ->orderBy('day_number', 'asc')
             ->get();
 
-
-
-        // Monthly sales data
-        $monthlySales = UserGift::selectRaw('YEAR(user_gifts.created_at) as year, MONTH(user_gifts.created_at) as month, SUM(plan.amount) as total_sales')
+// Get monthly sales data
+        $monthlySales = UserGift::selectRaw("
+        YEAR(user_gifts.created_at) as year,
+        MONTH(user_gifts.created_at) as month,
+        COALESCE(SUM(plan.amount), 0) as total_sales
+    ")
             ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
             ->groupBy('year', 'month')
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
             ->get();
 
-        // Format weekly sales data for chart
-        $weeklySalesData = $weeklySales->map(function ($sale) {
-            return [
-                'label' => "{$sale->day}, Week {$sale->week}, {$sale->year}",
-                'value' => $sale->total_sales,
-            ];
-        });
+// Reference arrays for all days and months
+        $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
 
-        // Format monthly sales data for chart
-        $monthlySalesData = $monthlySales->map(function ($sale) {
-            return [
-                'label' => date('F Y', mktime(0, 0, 0, $sale->month, 1, $sale->year)), // Convert month to name
-                'value' => $sale->total_sales,
+        // Initialize arrays with zero values
+        $weeklySalesData = [];
+        foreach ($weekDays as $day) {
+            $weeklySalesData[$day] = [
+                'label' => $day,
+                'value' => 0
             ];
-        });
+        }
+
+        // Populate with actual sales data
+        foreach ($weeklySales as $sale) {
+            $weeklySalesData[$sale->day]['value'] = $sale->total_sales;
+        }
+
+        // Convert back to indexed array
+        $weeklySalesData = array_values($weeklySalesData);
+
+        // Initialize arrays with zero values for months
+        $monthlySalesData = [];
+        foreach ($months as $num => $name) {
+            $monthlySalesData[$num] = [
+                'label' => "$name " . date('Y'),
+                'value' => 0
+            ];
+        }
+
+// Populate with actual sales data
+        foreach ($monthlySales as $sale) {
+            $monthlySalesData[$sale->month]['value'] = $sale->total_sales;
+        }
+
+// Convert back to indexed array
+        $monthlySalesData = array_values($monthlySalesData);
+
 
         // Return the data
         return $this->successResponse(data: [
