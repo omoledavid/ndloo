@@ -12,7 +12,11 @@ class ProfileInfoController extends BaseService
     public function profileInfo()
     {
         return $this->successResponse(data:[
-            'options' => ProfileInfo::query()->get()
+            'All' => ProfileInfo::query()->get(),
+            'General' => ProfileInfo::query()->where('category', 'Generator')->get(),
+            'Appearance' => ProfileInfo::query()->where('category', 'Appearance')->get(),
+            'Personality' => ProfileInfo::query()->where('Personality', )->get(),
+            'Lifestyle' => ProfileInfo::query()->where('Lifestyle', )->get(),
         ]);
     }
     public function saveProfileInfo(Request $request)
