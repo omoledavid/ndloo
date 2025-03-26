@@ -47,8 +47,8 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/banned/user/{user}', 'bannedUser');
         Route::post('/info/user/{user}', 'editUserInfo');
         Route::get('/activate/user/{user}', 'activateUser');
-        Route::get('/premium/user/{user}', 'premiumAccess');
-        Route::get('/deactivate-premium/user/', 'premiumAccessRevoke');
+        Route::post('/premium/user', 'premiumAccess');
+        Route::post('/deactivate-premium/user', 'premiumAccessRevoke');
     });
 
     Route::prefix('admin')->group(function () {

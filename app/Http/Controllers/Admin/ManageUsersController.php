@@ -88,12 +88,23 @@ class ManageUsersController extends BaseService
             'activated_user' => $user,
         ]);
     }
-    public function premiumAccess(User $user)
+    public function premiumAccess(Request $request)
     {
-        $user->subscriptions()->attach(SubscriptionPlan::first());
-        return $this->successResponse('User has been granted premium access', [
-            'user' => new UserResource($user),
-            'subscription' => $user->subscriptions()->first(),
+        $userIds = is_array($request->user_id) ? $request->user_id : [$request->user_id]; // Convert single ID to an array
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return $this->errorResponse('No valid users found', 404);
+        }
+
+        // Detach subscriptions for each user
+        foreach ($users as $user) {
+            $user->subscriptions()->detach();
+        }
+
+        return $this->successResponse('User(s) premium access granted', [
+            'users' => UserResource::collection($users),
         ]);
     }
 
