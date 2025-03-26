@@ -13,7 +13,7 @@ class ProfileInfoController extends BaseService
     {
         return $this->successResponse(data:[
             'All' => ProfileInfo::query()->get(),
-            'General' => ProfileInfo::query()->where('category', 'Generator')->get(),
+            'General' => ProfileInfo::query()->where('category', 'General')->get(),
             'Appearance' => ProfileInfo::query()->where('category', 'Appearance')->get(),
             'Personality' => ProfileInfo::query()->where('category','Personality', )->get(),
             'Lifestyle' => ProfileInfo::query()->where('category','Lifestyle', )->get(),
