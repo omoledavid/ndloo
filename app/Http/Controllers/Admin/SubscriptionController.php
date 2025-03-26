@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionPlanUser;
@@ -97,6 +98,20 @@ class SubscriptionController extends BaseService
             'total_subscription' => SubscriptionPlan::count(),
             'total_subscriber' => SubscriptionPlanUser::count(),
             'subscriber_by_months' => $formattedMonthlySubscribers,
+        ]);
+    }
+    public function toggleSub(SubscriptionPlan $subscription){
+        $alreadyDefault = SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first();
+        if($alreadyDefault){
+            $alreadyDefault->is_default = SubscriptionStatus::DISABLE;
+            $alreadyDefault->save();
+        }
+        $subscriptionStat = $subscription->is_default == SubscriptionStatus::ENABLE->value ? SubscriptionStatus::DISABLE->value : SubscriptionStatus::ENABLE->value;
+        $subscription->update([
+            'is_default' => $subscriptionStat
+        ]);
+        return $this->successResponse('Successfully',data: [
+            'subscription' => $subscription,
         ]);
     }
 

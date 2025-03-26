@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Enums\GiftStatus;
 use App\Http\Controllers\Controller;
 use App\Models\GiftPlan;
 use App\Models\UserGift;
@@ -88,60 +89,161 @@ class GiftController extends BaseService
         return redirect()->back()->withErrors(['error' => 'Error updating gift']);
     }
 
+    public function statusToggle(GiftPlan $gift)
+    {
+        $giftStatus = $gift->status == GiftStatus::DISABLE->value ? GiftStatus::ENABLE->value : GiftStatus::DISABLE->value;
+
+        $gift->update([
+            'status' => $giftStatus
+        ]);
+
+        return $this->successResponse('Gift status updated successfully');
+    }
+
+
     public function giftStats()
     {
-        // Total revenue calculation
-        $totalGiftsRevenue = UserGift::with('plan')->get()->sum(function ($gift) {
-            return $gift->plan->amount;
-        });
+        $totalGiftsRevenue = UserGift::join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+            ->sum('plan.amount');
+
+
+
 
         // Total gifts and purchases
         $totalGiftsPurchased = UserGift::count();
         $totalGiftPlans = GiftPlan::count();
 
         // Weekly sales data
-        $weeklySales = UserGift::selectRaw('YEAR(user_gifts.created_at) as year, WEEK(user_gifts.created_at) as week, SUM(plan.amount) as total_sales')
+        // Get weekly sales data
+        $weeklyPurchase = UserGift::selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                WEEK(user_gifts.created_at, 1) as week,
+                DAYOFWEEK(user_gifts.created_at) as day_number,
+                DAYNAME(user_gifts.created_at) as day,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
             ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-            ->groupBy('year', 'week')
-            ->orderBy('year', 'asc')
-            ->orderBy('week', 'asc')
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
+            ->groupBy('year', 'week', 'day_number', 'day')
+            ->orderBy('day_number', 'asc')
             ->get();
 
-        // Monthly sales data
-        $monthlySales = UserGift::selectRaw('YEAR(user_gifts.created_at) as year, MONTH(user_gifts.created_at) as month, SUM(plan.amount) as total_sales')
+        // Get monthly sales data
+        $monthlyPurchase = UserGift::selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                MONTH(user_gifts.created_at) as month,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
+                    ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+                    ->groupBy('year', 'month')
+                    ->orderBy('year', 'asc')
+                    ->orderBy('month', 'asc')
+                    ->get();
+        $weeklySales = UserGift::where('user_gifts.status', 'redeemed')->selectRaw("
+                YEAR(user_gifts.created_at) as year,
+                WEEK(user_gifts.created_at, 1) as week,
+                DAYOFWEEK(user_gifts.created_at) as day_number,
+                DAYNAME(user_gifts.created_at) as day,
+                COALESCE(SUM(plan.amount), 0) as total_sales
+            ")
             ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
+            ->whereRaw("YEARWEEK(user_gifts.created_at, 1) = YEARWEEK(CURDATE(), 1)") // Filter for current week
+            ->groupBy('year', 'week', 'day_number', 'day')
+            ->orderBy('day_number', 'asc')
             ->get();
 
-        // Format weekly sales data for chart
-        $weeklySalesData = $weeklySales->map(function ($sale) {
-            return [
-                'label' => "Week {$sale->week}, {$sale->year}",
-                'value' => $sale->total_sales,
-            ];
-        });
+        // Get monthly sales data
+        $monthlySales = UserGift::where('user_gifts.status', 'redeemed') // Add table alias
+                    ->selectRaw("
+                    YEAR(user_gifts.created_at) as year,
+                    MONTH(user_gifts.created_at) as month,
+                    COALESCE(SUM(plan.amount), 0) as total_sales
+                ")
+                        ->join('gift_plans as plan', 'user_gifts.gift_plan_id', '=', 'plan.id')
+                        ->groupBy('year', 'month')
+                        ->orderBy('year', 'asc')
+                        ->orderBy('month', 'asc')
+                        ->get();
 
-        // Format monthly sales data for chart
-        $monthlySalesData = $monthlySales->map(function ($sale) {
-            return [
-                'label' => date('F Y', mktime(0, 0, 0, $sale->month, 1, $sale->year)), // Convert month to name
-                'value' => $sale->total_sales,
+
+
+        // Reference arrays for all days and months
+        $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
+
+        // Initialize arrays with zero values
+        $weeklyPurchaseData = [];
+        $weeklySaleData = [];
+        foreach ($weekDays as $day) {
+            $weeklyPurchaseData[$day] = [
+                'label' => $day,
+                'value' => 0
             ];
-        });
+            $weeklySaleData[$day] = [
+                'label' => $day,
+                'value' => 0
+            ];
+        }
+
+        // Populate with actual sales data
+        foreach ($weeklyPurchase as $sale) {
+            $weeklyPurchaseData[$sale->day]['value'] = $sale->total_sales;
+        }
+        foreach ($weeklySales as $sale) {
+            $weeklyPurchaseData[$sale->day]['value'] = $sale->total_sales;
+        }
+
+        // Convert back to indexed array
+        $weeklyPurchaseData = array_values($weeklyPurchaseData);
+        $weeklySaleData = array_values($weeklySaleData);
+
+        // Initialize arrays with zero values for months
+        $monthlyPurchaseData = [];
+        $monthlySalesData = [];
+        foreach ($months as $num => $name) {
+            $monthlyPurchaseData[$num] = [
+                'label' => "$name",
+                'value' => 0
+            ];
+            $monthlySalesData[$num] = [
+                'label' => "$name",
+                'value' => 0
+            ];
+        }
+
+        // Populate with actual sales data
+        foreach ($monthlyPurchase as $sale) {
+            $monthlyPurchaseData[$sale->month]['value'] = $sale->total_sales;
+        }
+        foreach ($monthlySales as $sale) {
+            $monthlySalesData[$sale->month]['value'] = $sale->total_sales;
+        }
+
+        // Convert back to indexed array
+        $monthlyPurchaseData = array_values($monthlyPurchaseData);
+        $monthlySalesData = array_values($monthlySalesData);
+
 
         // Return the data
         return $this->successResponse(data: [
             'general_stats' => [
                 'total_gifts' => $totalGiftPlans,
+                'gift_profit' => 0,
                 'total_gifts_purchased' => $totalGiftsPurchased,
                 'total_gift_revenue' => $totalGiftsRevenue . ' USD',
             ],
-            'total_gift_sales' => [
-                'byWeek' => $weeklySalesData,
-                'byMonth' => $monthlySalesData,
+            'total_gift_purchase' => [
+                'byWeek' => $weeklyPurchaseData,
+                'byMonth' => $monthlyPurchaseData,
             ],
+            'total_gift_sales' => [
+                'byWeek' => $weeklySaleData,
+                'byMonth' => $monthlySalesData
+            ]
         ]);
     }
 

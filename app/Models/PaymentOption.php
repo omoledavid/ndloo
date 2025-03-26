@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentOption extends Model
 {
     use HasFactory, HasUuids;
+    protected $primaryKey = 'name';
 
     protected $fillable = [
         'name',
         'slug',
+        'status',
         'logo',
     ];
 

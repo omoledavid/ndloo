@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Services;
 
 use App\Contracts\DataObjects\TransactionData;
+use App\Contracts\Enums\GiftStatus;
 use App\Contracts\Enums\TransactionIcons;
 use App\Contracts\Enums\TransactionTypes;
 use App\Http\Resources\GiftPlanResource;
@@ -25,14 +26,14 @@ class GiftService extends BaseService
     public function plans(): JsonResponse
     {
         return $this->successResponse(data: [
-            'plans' => GiftPlanResource::collection(GiftPlan::all()),
+            'plans' => GiftPlanResource::collection(GiftPlan::where('status', GiftStatus::ENABLE)->get()),
         ]);
     }
 
     public function myPlans(): JsonResponse
     {
         return $this->successResponse(data: [
-            'plans' => UserGift::where('user_id', auth()->user()->id)->with('plan')->get(),
+            'plans' => UserGift::where('user_id', auth()->user()->id)->where('status', '!=', 'redeemed')->with('plan')->get(),
         ]);
     }
 
@@ -114,10 +115,8 @@ class GiftService extends BaseService
                 'usdAmount' => $gift->plan->amount / 2,
             ])->toArray());
 
-            UserGift::where([
-                ['user_id', $request->user()->id],
-                ['gift_plan_id', $gift->plan->id],
-            ])->delete();
+            $giftIsMine->status = 'redeemed';
+            $giftIsMine->save();
 
             DB::commit();
             //            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));

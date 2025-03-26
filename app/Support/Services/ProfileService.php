@@ -45,23 +45,36 @@ class ProfileService extends BaseService
     public function uploadImages(object $request): JsonResponse
     {
         $uploadedImages = []; // Store the uploaded image paths
+        $firstImagePath = null; // To store the first uploaded image
 
-        foreach ($request->file('images') as $image) {
+        foreach ($request->file('images') as $index => $image) {
             // Upload each image and get the file path
             $uploadedFile = FileUpload::uploadFile($image, folder: 'images');
+            $imagePath = env('APP_URL').'/public/storage/'.$uploadedFile;
 
             // Save the image information to the database
             ProfileImage::create([
                 'user_id' => $request->user()->id,
-                'image' => env('APP_URL').'/public/storage/'.$uploadedFile,
+                'image' => $imagePath,
             ]);
 
+            // Store the first image path
+            if ($index === 0) {
+                $firstImagePath = $imagePath;
+            }
+
             // Add the uploaded file path to the response
-            $uploadedImages[] = env('APP_URL').'/public/storage/'.$uploadedFile;
+            $uploadedImages[] = $imagePath;
+        }
+
+        // Update user's avatar with the first uploaded image
+        if ($firstImagePath) {
+            $request->user()->update(['avatar' => $firstImagePath]);
         }
 
         return $this->successResponse(__('responses.imagesUploaded'));
     }
+
 
     public function removeImage(ProfileImage $profileImage): JsonResponse
     {

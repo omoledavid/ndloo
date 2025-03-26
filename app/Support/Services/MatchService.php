@@ -21,7 +21,7 @@ class MatchService extends BaseService
 //            ->countryFilter()
             ->nameFilter()
             ->ageFilter()
-            ->genderFilter()
+//            ->genderFilter()
             ->activeFilter()
             ->get();
 

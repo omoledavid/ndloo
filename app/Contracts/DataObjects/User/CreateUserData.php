@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contracts\DataObjects\User;
 
 use App\Contracts\DataObjects\BaseData;
+use App\Contracts\Enums\UserType;
 
 class CreateUserData extends BaseData
 {
@@ -15,10 +16,11 @@ class CreateUserData extends BaseData
         public readonly string $username,
         public readonly string|int $age,
         public readonly string $phone,
+        public readonly string|int $type,
         public readonly string|int $country_id,
         public readonly string $gender,
-        public readonly string|float $latitude,
-        public readonly string|float $longitude
+        public readonly string|float|null $latitude = null,
+        public readonly string|float|null $longitude = null
     ) {}
 
     public static function fromRequest(object $request): self
@@ -30,6 +32,7 @@ class CreateUserData extends BaseData
             explode('@', $request->email)[0],
             $request->age,
             $request->phone,
+            $request->type,
             $request->country,
             $request->gender,
             $request->latitude,

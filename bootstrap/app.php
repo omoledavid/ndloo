@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin.status' =>\App\Http\Middleware\IsAdmin::class,
+            'subAdmin.status' => \App\Http\Middleware\SubAdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
