@@ -110,7 +110,7 @@ class SubscriptionController extends BaseService
         $subscription->update([
             'is_default' => $subscriptionStat
         ]);
-        return $this->successResponse(data: [
+        return $this->successResponse('Successfully',data: [
             'subscription' => $subscription,
         ]);
     }
