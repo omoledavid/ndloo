@@ -11,16 +11,17 @@ class ProfileInfoController extends BaseService
 {
     public function profileInfo()
     {
-        return $this->successResponse(data:[
+        return $this->successResponse(data: [
+            'All' => ProfileInfo::query()->get(),
             'infos' => [
-                'All' => ProfileInfo::query()->get(),
                 'General' => ProfileInfo::query()->where('category', 'General')->get(),
                 'Appearance' => ProfileInfo::query()->where('category', 'Appearance')->get(),
-                'Personality' => ProfileInfo::query()->where('category','Personality', )->get(),
-                'Lifestyle' => ProfileInfo::query()->where('category','Lifestyle', )->get(),
+                'Personality' => ProfileInfo::query()->where('category', 'Personality',)->get(),
+                'Lifestyle' => ProfileInfo::query()->where('category', 'Lifestyle',)->get(),
             ]
         ]);
     }
+
     public function saveProfileInfo(Request $request)
     {
         $validatedData = $request->validate([
@@ -33,6 +34,7 @@ class ProfileInfoController extends BaseService
         return $this->successResponse('Profile info Created Successfully');
 
     }
+
     public function updateProfileInfo(Request $request)
     {
         $validatedData = $request->validate([
