@@ -99,6 +99,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/settings/gateways', 'gateWays');
         Route::get('/settings/categories', 'getCategories');
         Route::post('/settings', 'updateSettings');
+        Route::get('/charges', 'charges');
     });
 });
 
