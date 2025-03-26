@@ -68,12 +68,8 @@ class GiftService extends BaseService
                 'usdAmount' => $gift->plan->amount / 2,
             ])->toArray());
 
-            $redeemedGift = UserGift::where([
-                ['user_id', $request->user()->id],
-                ['gift_plan_id', $gift->plan->id],
-            ])->first();
-            $redeemedGift->status = 'redeemed';
-            $redeemedGift->save();
+            $giftIsMine->status = 'redeemed';
+            $giftIsMine->save();
 
             DB::commit();
 //            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));
