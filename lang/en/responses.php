@@ -31,7 +31,7 @@ return [
     'withdrawalFailed' => 'Your withdrawal failed. Your funds have been returned to your wallet',
     'planSubscribed' => 'Successfully subscribed to :name plan.',
     'planUnsubscribed' => 'Successfully unsubscribed to :name plan.',
-    'giftProcessing' => 'Your gift is being processed. You will receive a notification once it has been completed.',
+    'giftSent' => 'Your gift has been sent successfully.',
     'profileUpdated' => 'Your profile has been updated.',
     'imagesUploaded' => 'Profile images successfully added.',
     'imageRemoved' => 'Image deleted.',
