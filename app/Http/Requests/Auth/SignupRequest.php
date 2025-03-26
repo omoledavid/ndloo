@@ -30,6 +30,7 @@ class SignupRequest extends FormRequest
             'country' => 'required|integer|bail',
             'email' => 'required|email:filter|unique:App\Models\User',
             'phone' => 'required|string',
+            'type' => 'nullable|int',
             'gender' => ['required', Rule::in(['male', 'female', 'other'])],
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',

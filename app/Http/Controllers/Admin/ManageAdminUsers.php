@@ -20,6 +20,12 @@ class ManageAdminUsers extends BaseService
     }
     public function deleteAdminUsers(User $admin)
     {
-        return $admin->delete();
+        if($admin->delete())
+        {
+            return $this->successResponse('admin has been deleted successfully.');
+        }else{
+            return $this->errorResponse('admin has been deleted failed.');
+        }
+
     }
 }

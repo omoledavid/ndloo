@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         //Admin users
         Route::controller(ManageAdminUsers::class)->group(function (){
             Route::get('/users', 'allAdminUsers');
-            Route::delete('/users', 'deleteAdminUsers');
+            Route::delete('/users/{admin}', 'deleteAdminUsers');
         });
     });
 
