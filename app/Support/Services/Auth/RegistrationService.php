@@ -4,6 +4,7 @@ namespace App\Support\Services\Auth;
 
 use App\Contracts\DataObjects\User\CreateUserData;
 use App\Contracts\Enums\OtpCodeTypes;
+use App\Contracts\Enums\SubscriptionStatus;
 use App\Contracts\Enums\UserStates;
 use App\Models\Country;
 use App\Models\OtpCode;
@@ -50,11 +51,19 @@ class RegistrationService extends BaseService
             ]);
 
             //enroll user in free plan
-            $user->subscriptions()->attach(SubscriptionPlan::first());
+            $defaultPlan = SubscriptionPlan::where('is_default', SubscriptionStatus::ENABLE)->first();
+
+            if ($defaultPlan) {
+                $user->subscriptions()->attach($defaultPlan);
+            }
+
 
             DB::commit();
 
-            $user->notify(new VerifyEmailNotice($user, $token));
+            // $user->notify(new VerifyEmailNotice($user, $token));
+            notify($user, 'EVER_CODE', [
+                'code' => $token,
+            ], ['email']);
             $smsSender->send($this->getMessage($token), $user->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [
@@ -116,7 +125,10 @@ class RegistrationService extends BaseService
 
             DB::commit();
 
-            $user->notify(new VerifyEmailNotice($user, $token));
+            // $user->notify(new VerifyEmailNotice($user, $token));
+            notify($user, 'EVER_CODE', [
+                'code' => $token,
+            ], ['email']);
             $smsSender->send($this->getMessage($token), $user->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [

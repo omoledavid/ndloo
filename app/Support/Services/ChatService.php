@@ -44,14 +44,17 @@ class ChatService extends BaseService
                         ['read', MessageStates::UNREAD],
                     ])->count(),
                     'user' => User::with(['images', 'profile'])->find($user_id),
-                    'messages' => Message::where([
-                        ['sender', $user_id],
-                        ['recipient', auth()->user()->id],
-                    ])
-                        ->orWhere([
-                            ['sender', auth()->user()->id],
-                            ['recipient', $user_id],
-                        ])->with(['sender', 'recipient'])->orderBy('created_at', 'desc')->limit(100)->get(),
+                    'messages' => Message::where(function ($query) use ($user_id) {
+                        $query->where('sender', $user_id)
+                            ->where('recipient', auth()->id());
+                    })->orWhere(function ($query) use ($user_id) {
+                        $query->where('sender', auth()->id())
+                            ->where('recipient', $user_id);
+                    })
+                        ->with(['sender', 'recipient'])
+                        ->orderBy('created_at', 'desc')
+                        ->limit(100)
+                        ->get(),
                 ]);
             }
         }
@@ -115,12 +118,12 @@ class ChatService extends BaseService
                 'message_count' => $currentSubscription->pivot->message_count + 1,
             ]);
             $message->load('sender');
-            
+
             PushNotificationJob::dispatchAfterResponse(
                 $recipient,
                 NotificationData::fromArray([
                     'title' => __('responses.newMessage'),
-                    'body' => $request->user()->firstname.': '.$request->message,
+                    'body' => $request->user()->firstname . ': ' . $request->message,
                     'data' => []
                 ])
             );
@@ -137,27 +140,34 @@ class ChatService extends BaseService
 
     public function chatMessages(object $request, User $user): JsonResponse
     {
-        $messages = Message::query()
-            ->where([
-                ['sender', auth()->user()->id],
-                ['recipient', $user->id],
+        $messagesQuery = Message::query()
+            ->where(function ($query) use ($user) {
+                $query->where('sender', auth()->id())
+                    ->where('recipient', $user->id);
+            })
+            ->orWhere(function ($query) use ($user) {
+                $query->where('sender', $user->id)
+                    ->where('recipient', auth()->id());
+            })
+            ->with([
+                'sender', 'recipient',
+                'sender.images', 'recipient.images',
+                'sender.profile', 'recipient.profile'
             ])
-            ->orWhere([
-                ['sender', $user->id],
-                ['recipient', auth()->user()->id],
-            ])
-            ->with(['sender', 'recipient', 'sender.images', 'recipient.images', 'sender.profile', 'recipient.profile'])
-            ->orderBy('created_at', 'asc')
-            ->limit(self::LIMIT);
+            ->orderBy('created_at', 'asc');
+
+        // Apply offset if provided
+        if ($request->query('offset')) {
+            $messagesQuery->offset($request->query('offset'));
+        }
+
+        $messages = $messagesQuery->limit(self::LIMIT)->get();
 
         return $this->successResponse(data: [
-            'messages' => MessageResource::collection(
-                $request->query('offset')
-                    ? $messages->offset($request->query('offset'))->get()
-                    : $messages->get()
-            ),
+            'messages' => MessageResource::collection($messages),
         ]);
     }
+
 
     public function markRead(object $request, User $user): JsonResponse
     {

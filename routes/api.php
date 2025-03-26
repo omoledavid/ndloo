@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AbuseController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\ManageAdminUsers;
+use App\Http\Controllers\Admin\ProfileInfoController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoostController;
@@ -22,7 +24,7 @@ use App\Http\Controllers\Admin\ManageUsersController;
 use App\Http\Controllers\Admin\BoostController as AdminBoostController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/hey', function (){
+Route::get('/hey', function () {
     return response()->json('Login');
 })->name('login');
 Route::controller(AuthController::class)->group(function () {
@@ -37,12 +39,30 @@ Route::controller(AuthController::class)->group(function () {
 });
 //Admin
 Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
+    //Manage user
     Route::controller(ManageUsersController::class)->group(function () {
         Route::post('/all-users', 'allUsers');
         Route::get('/users-stats', 'stats');
         Route::get('/user/{user}', 'viewUser');
         Route::get('/banned/user/{user}', 'bannedUser');
+        Route::post('/info/user/{user}', 'editUserInfo');
         Route::get('/activate/user/{user}', 'activateUser');
+        Route::post('/premium/user', 'premiumAccess');
+        Route::post('/deactivate-premium/user', 'premiumAccessRevoke');
+    });
+
+    Route::prefix('admin')->group(function () {
+        Route::controller(ProfileInfoController::class)->group(function () {
+            Route::get('/profile/info', 'profileInfo');
+            Route::post('/profile/info', 'saveProfileInfo');
+            Route::put('/profile/info', 'updateProfileInfo');
+        });
+        //Admin users
+        Route::controller(ManageAdminUsers::class)->group(function (){
+            Route::get('/users', 'allAdminUsers');
+            Route::delete('/users/{admin}', 'deleteAdminUsers')->middleware('subAdmin.status');
+            Route::post('/change-password/{admin}', 'passwordChange');
+        });
     });
 
     Route::controller(AdminBoostController::class)->group(function () {
@@ -52,7 +72,6 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/boost/edit/{boost}', 'updateBoost');
         Route::get('/boost/{boostPlan}', 'viewBoostPlan');
         Route::get('/boost/edit/{plan}', 'viewUser');
-        Route::get('/banned/user/{user}', 'bannedUser');
     });
 
 //Gifts
@@ -61,12 +80,14 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/gifts/stats', 'giftStats');
         Route::post('/gifts', 'createGift');
         Route::post('/gifts/edit/{gift}', 'editGift');
+        Route::get('/gifts/status/{gift}', 'statusToggle');
         Route::get('/gifts/{id}', 'viewGifts');
     });
 
 //Subscriptions
     Route::controller(AdminSubscriptionController::class)->group(function () {
         Route::get('/subscriptions', 'getSubscriptions');
+        Route::get('/toggle-sub/{subscription}', 'toggleSub');
         Route::get('/subscriptions/stats', 'subscriptionStat');
         Route::get('/subscription/{subscription}', 'getSubscription');
         Route::post('/subscription/edit/{subscription}', 'editSubscription');
@@ -75,6 +96,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
 
     Route::controller(SettingController::class)->group(function () {
         Route::get('/settings', 'getSettings');
+        Route::post('/settings/gateways', 'gateWays');
         Route::get('/settings/categories', 'getCategories');
         Route::post('/settings', 'updateSettings');
     });
@@ -134,6 +156,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/options', 'getOptions');
         Route::post('/rate', 'getRate');
         Route::post('/payment/info', 'generateInfo');
+        Route::post('/payment/gateways', 'gateways');
         Route::get('/payment/verify/{payment:reference}', 'verifyPayment');
     });
 

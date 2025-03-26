@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Services;
 
+use App\Contracts\Enums\SubscriptionStatus;
 use App\Contracts\Enums\TransactionDuration;
 use App\Models\SubscriptionCategory;
 use App\Models\SubscriptionPlan;
@@ -18,8 +19,15 @@ class SubscriptionService extends BaseService
 {
     public function plans(): JsonResponse
     {
+
+        $subscriptionCategories = SubscriptionCategory::with(['plans' => function ($query) {
+            $query->where('status', SubscriptionStatus::ENABLE);
+        }])->whereHas('plans', function ($query) {
+            $query->where('status', SubscriptionStatus::ENABLE); // Ensure category has at least one enabled plan
+        })->get();
+
         return $this->successResponse(data: [
-            'plans' => SubscriptionCategory::with('plans')->get(),
+            'plans' => $subscriptionCategories,
         ]);
     }
 
@@ -44,7 +52,7 @@ class SubscriptionService extends BaseService
 
             DB::commit();
 
-            $request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
+            //$request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
 
             return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name.' '.$plan->category?->name]));
         } catch (\Throwable $th) {
@@ -65,7 +73,7 @@ class SubscriptionService extends BaseService
             DB::beginTransaction();
 
             $plan->user()->detach($request->user());
-            $request->user()->subscriptions()->attach(SubscriptionPlan::first());
+            $request->user()->subscriptions()->attach(SubscriptionPlan::where('is_default', SubscriptionStatus::ENABLE)->first());
 
             DB::commit();
 

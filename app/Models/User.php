@@ -30,6 +30,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'age',
+        'type',
         'wallet',
         'credits',
         'gender',
@@ -148,5 +149,9 @@ class User extends Authenticatable
     public function myGift()
     {
         return $this->hasMany(UserGift::class);
+    }
+    public function getFullnameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
     }
 }

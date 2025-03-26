@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Contracts\Enums\UserStates;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\UserResource;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Support\Services\BaseService;
 use Carbon\Carbon;
@@ -22,7 +24,8 @@ class ManageUsersController extends BaseService
         if ($request->has('name') && $request->name != '') {
             $query->where(function ($query) use ($request) {
                 $query->where('firstname', 'like', '%' . $request->name . '%')
-                    ->orWhere('lastname', 'like', '%' . $request->name . '%');
+                    ->orWhere('lastname', 'like', '%' . $request->name . '%')
+                    ->orWhere('email', 'like', '%' . $request->name . '%');
             });
         }
 
@@ -43,11 +46,19 @@ class ManageUsersController extends BaseService
         }
 
         // Get the filtered users
-        $allUsers = $query->get();
+        $allUsers = UserResource::collection($query->paginate(10));
 
         // Return the filtered users
         return $this->successResponse(data: [
             'all_users' => $allUsers,
+            'pagination' => [
+                'current_page' => $allUsers->currentPage(),
+                'per_page' => $allUsers->perPage(),
+                'total' => $allUsers->total(),
+                'last_page' => $allUsers->lastPage(),
+                'next_page_url' => $allUsers->nextPageUrl(),
+                'prev_page_url' => $allUsers->previousPageUrl(),
+            ],
         ]);
     }
 
@@ -77,6 +88,57 @@ class ManageUsersController extends BaseService
             'activated_user' => $user,
         ]);
     }
+    public function premiumAccess(Request $request)
+    {
+        $userIds = is_array($request->user_id) ? $request->user_id : [$request->user_id]; // Convert single ID to an array
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return $this->errorResponse('No valid users found', 404);
+        }
+
+        // Detach subscriptions for each user
+        foreach ($users as $user) {
+            $user->subscriptions()->detach();
+        }
+
+        return $this->successResponse('User(s) premium access granted', [
+            'users' => UserResource::collection($users),
+        ]);
+    }
+
+    public function premiumAccessRevoke(Request $request)
+    {
+        $userIds = is_array($request->user_id) ? $request->user_id : [$request->user_id]; // Convert single ID to an array
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return $this->errorResponse('No valid users found', 404);
+        }
+
+        // Detach subscriptions for each user
+        foreach ($users as $user) {
+            $user->subscriptions()->detach();
+        }
+
+        return $this->successResponse('User(s) premium access revoked', [
+            'users' => UserResource::collection($users),
+        ]);
+    }
+
+    public function editUserInfo(User $user, Request $request)
+    {
+        $user->profile()->detach(array_keys($request->details));
+
+        foreach ($request->details as $id => $content) {
+            $request->user()->profile()->attach($id, ['content' => $content]);
+        }
+        return $this->successResponse('User Account info updated', [
+            'user' => new UserResource($user)
+        ]);
+    }
 
     public function stats(): JsonResponse
     {
@@ -99,109 +161,168 @@ class ManageUsersController extends BaseService
     public function getUserRegistrationsByMonth()
     {
         // Query the database to get user registrations grouped by month and year
+
+        // Get registration data
         $registrations = User::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('count(*) as total')
+            DB::raw('COUNT(*) as total')
         )
             ->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
             ->get();
 
-        // Prepare the data for JSON response
-        $months = [];
-        $counts = [];
+        // Reference array for months
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
 
-        foreach ($registrations as $registration) {
-            $months[] = \Carbon\Carbon::createFromDate($registration->year, $registration->month, 1)->format('F Y');
-            $counts[] = $registration->total;
+        // Get the current year
+
+        // Initialize result array with zero values
+        $formattedRegistrations = [];
+        foreach ($months as $num => $name) {
+            $formattedRegistrations[$num] = [
+                'label' => "$name",
+                'value' => 0
+            ];
         }
 
-        // Return the data as a JSON response
+        // Populate with actual registration data
+        foreach ($registrations as $registration) {
+            $formattedRegistrations[$registration->month]['value'] = $registration->total;
+        }
+
+        // Convert back to indexed array
+        $formattedRegistrations = array_values($formattedRegistrations);
+
+        // Return JSON response
         return [
-            'months' => $months,
-            'counts' => $counts,
+            'months' => array_column($formattedRegistrations, 'label'),
+            'counts' => array_column($formattedRegistrations, 'value'),
         ];
+
     }
     public function getUserRegistrationsByYear()
     {
+        // Define the date range (last 5 years)
+        $currentYear = Carbon::now()->year;
+        $startYear = $currentYear - 5;
+
+        // Fetch user registrations grouped by year
         $registrations = User::select(
             DB::raw('YEAR(created_at) as year'),
-            DB::raw('count(*) as total')
+            DB::raw('COUNT(*) as total')
         )
-            ->whereNotNull('created_at') // Ensure the created_at field is not null
+            ->whereYear('created_at', '>=', $startYear) // Get records for the past 5 years
             ->groupBy(DB::raw('YEAR(created_at)'))
             ->orderBy('year', 'asc')
             ->get();
 
-        $years = [];
-        $counts = [];
-
-        foreach ($registrations as $registration) {
-            $years[]  = Carbon::parse($registration->created_at)->format('Y');
-            $counts[] = $registration->total;
+        // Initialize an array for the past 5 years with default zero values
+        $formattedRegistrations = [];
+        for ($year = $startYear; $year <= $currentYear; $year++) {
+            $formattedRegistrations[$year] = [
+                'year' => $year,
+                'total' => 0
+            ];
         }
 
+        // Populate the array with actual registration data
+        foreach ($registrations as $registration) {
+            $formattedRegistrations[$registration->year]['total'] = $registration->total;
+        }
+
+        // Convert associative array to indexed array
+        $formattedRegistrations = array_values($formattedRegistrations);
+
+        // Return JSON response
         return [
-            'years' => $years,
-            'counts' => $counts,
+            'years' => array_column($formattedRegistrations, 'year'),
+            'counts' => array_column($formattedRegistrations, 'total'),
         ];
     }
+
     public function getActiveUsersByMonth()
     {
         $activeUsers = User::select(
             DB::raw('YEAR(updated_at) as year'),
             DB::raw('MONTH(updated_at) as month'),
-            DB::raw('count(*) as total')
+            DB::raw('COUNT(*) as total')
         )
-            ->where('updated_at', '>=', Carbon::now()->subMonth()) // Users who logged in in the last month
-            ->groupBy(DB::raw('YEAR(updated_at)'), DB::raw('MONTH(updated_at)'))
+            ->where('updated_at', '>=', Carbon::now()->subMonth()) // Users active in the last month
+            ->groupBy(DB::raw('YEAR(updated_at), MONTH(updated_at)'))
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
             ->get();
 
-        $months = [];
-        $counts = [];
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
 
-        foreach ($activeUsers as $user) {
-            $monthYear = Carbon::createFromFormat('Y-m', $user->year . '-' . $user->month)->format('F Y');
-            $months[] = $monthYear;
-            $counts[] = $user->total;
+
+        $formattedActiveUsers = [];
+        foreach ($months as $num => $name) {
+            $formattedActiveUsers[$num] = [
+                'label' => "$name",
+                'value' => 0
+            ];
         }
 
+        foreach ($activeUsers as $user) {
+            $formattedActiveUsers[$user->month]['value'] = $user->total;
+        }
+
+        $formattedActiveUsers = array_values($formattedActiveUsers);
+
         return [
-            'months' => $months,
-            'active_users' => $counts,
+            'months' => array_column($formattedActiveUsers, 'label'),
+            'active_users' => array_column($formattedActiveUsers, 'value'),
         ];
     }
     public function getActiveUsersByYear()
     {
-        // Define the date range (last 5 years for example)
-        $startDate = Carbon::now()->subYears(5); // 5 years ago
-        $endDate = Carbon::now(); // Current date
+        // Define the date range (last 5 years)
+        $currentYear = Carbon::now()->year;
+        $startYear = $currentYear - 5;
 
-        // Query to get active users by year
+        // Fetch active users by year
         $activeUsers = User::select(
             DB::raw('YEAR(updated_at) as year'),
-            DB::raw('count(*) as total')
+            DB::raw('COUNT(*) as total')
         )
-            ->whereBetween('updated_at', [$startDate, $endDate]) // Filter by date range
-            ->groupBy(DB::raw('YEAR(updated_at)')) // Group by year only
-            ->orderBy('year', 'asc') // Order results by year ascending
+            ->whereYear('updated_at', '>=', $startYear) // Get records for the past 5 years
+            ->groupBy(DB::raw('YEAR(updated_at)'))
+            ->orderBy('year', 'asc')
             ->get();
 
-        $years = [];
-        $counts = [];
-
-        foreach ($activeUsers as $user) {
-            $years[] = $user->year;
-            $counts[] = $user->total;
+        // Initialize an array for the past 5 years with default zero values
+        $formattedActiveUsers = [];
+        for ($year = $startYear; $year <= $currentYear; $year++) {
+            $formattedActiveUsers[$year] = [
+                'year' => $year,
+                'total' => 0
+            ];
         }
 
+        // Populate the array with actual active user data
+        foreach ($activeUsers as $user) {
+            $formattedActiveUsers[$user->year]['total'] = $user->total;
+        }
+
+        // Convert associative array to indexed array
+        $formattedActiveUsers = array_values($formattedActiveUsers);
+
+        // Return JSON response
         return [
-            'years' => $years,
-            'active_users' => $counts,
+            'years' => array_column($formattedActiveUsers, 'year'),
+            'active_users' => array_column($formattedActiveUsers, 'total'),
         ];
     }
+
 }

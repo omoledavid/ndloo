@@ -31,4 +31,17 @@ class SettingRepository implements SettingInterface
             ->first()
             ->update(['value' => $value]);
     }
+    public function exists($item)
+    {
+        return Setting::query()->where('item', $item)->exists();
+    }
+
+    public function create(int|string $item, mixed $value)
+    {
+        // Create a new setting
+        return Setting::create([
+            'item' => $item,
+            'value' => $value,
+        ]);
+    }
 }
