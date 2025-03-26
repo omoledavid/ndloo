@@ -28,4 +28,11 @@ class ManageAdminUsers extends BaseService
         }
 
     }
+    public function passwordChange(User $admin, Request $request)
+    {
+        $admin->update([
+            'password' => $request->new_password
+        ]);
+        return $this->successResponse('admin password changed successfully.');
+    }
 }

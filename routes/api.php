@@ -61,6 +61,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::controller(ManageAdminUsers::class)->group(function (){
             Route::get('/users', 'allAdminUsers');
             Route::delete('/users/{admin}', 'deleteAdminUsers');
+            Route::post('/change-password/{admin}', 'passwordChange');
         });
     });
 
