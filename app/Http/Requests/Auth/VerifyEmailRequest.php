@@ -26,11 +26,11 @@ class VerifyEmailRequest extends FormRequest
 
         return [
             'email' => 'required|email',
-            'token' => function ($attr, $val, $fail) use ($cacheValue) {
+            'token' => ['required', 'integer', function ($attr, $val, $fail) use ($cacheValue) {
                 if (intval($val) !== $cacheValue) {
                     return $fail('Invalid verification code');
                 }
-            }
+            }]
         ];
     }
 }
