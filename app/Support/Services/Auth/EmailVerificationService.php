@@ -2,6 +2,7 @@
 
 namespace App\Support\Services\Auth;
 
+use App\Contracts\Enums\SubscriptionStatus;
 use App\Contracts\Enums\UserStates;
 use App\Http\Resources\UserResource;
 use App\Models\AppToken;
@@ -50,7 +51,7 @@ class EmailVerificationService extends BaseService
     {
         try {
             DB::beginTransaction();
-            $plan = SubscriptionPlan::query()->where('name', '6 months')->first();
+            $plan = SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first();
 
             $expiryDate = Carbon::now()->addMonth(6)->toDateTimeString();
             $user->update(['wallet' => $user->wallet - 0]);

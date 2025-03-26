@@ -83,11 +83,4 @@ class SettingController extends BaseService
 
         return $this->successResponse('Payment gateway updated successfully');
     }
-    public function charges()
-    {
-        return $this->successResponse(data:[
-            'gift_conv_charge' => 0,
-            'withdrawal_charge' => 0,
-        ]);
-    }
 }

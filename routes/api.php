@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/info/user/{user}', 'editUserInfo');
         Route::get('/activate/user/{user}', 'activateUser');
         Route::get('/premium/user/{user}', 'premiumAccess');
-        Route::get('/deactivate-premium/user/{user}', 'premiumAccessRevoke')->middleware('subAdmin.status');
+        Route::get('/deactivate-premium/user/', 'premiumAccessRevoke');
     });
 
     Route::prefix('admin')->group(function () {
@@ -99,7 +99,6 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/settings/gateways', 'gateWays');
         Route::get('/settings/categories', 'getCategories');
         Route::post('/settings', 'updateSettings');
-        Route::get('/charges', 'charges');
     });
 });
 

@@ -97,14 +97,26 @@ class ManageUsersController extends BaseService
         ]);
     }
 
-    public function premiumAccessRevoke(User $user)
+    public function premiumAccessRevoke(Request $request)
     {
-        $user->subscriptions()->detach();
-        return $this->successResponse('User premium access revoked', [
-            'user' => new UserResource($user),
-            'subscription' => $user->subscriptions()->first(),
+        $userIds = is_array($request->user_id) ? $request->user_id : [$request->user_id]; // Convert single ID to an array
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return $this->errorResponse('No valid users found', 404);
+        }
+
+        // Detach subscriptions for each user
+        foreach ($users as $user) {
+            $user->subscriptions()->detach();
+        }
+
+        return $this->successResponse('User(s) premium access revoked', [
+            'users' => UserResource::collection($users),
         ]);
     }
+
     public function editUserInfo(User $user, Request $request)
     {
         $user->profile()->detach(array_keys($request->details));
