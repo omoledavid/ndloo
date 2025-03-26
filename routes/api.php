@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbuseController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\ManageAdminUsers;
 use App\Http\Controllers\Admin\ProfileInfoController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
@@ -23,7 +24,7 @@ use App\Http\Controllers\Admin\ManageUsersController;
 use App\Http\Controllers\Admin\BoostController as AdminBoostController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/hey', function (){
+Route::get('/hey', function () {
     return response()->json('Login');
 })->name('login');
 Route::controller(AuthController::class)->group(function () {
@@ -49,11 +50,17 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/premium/user/{user}', 'premiumAccess');
         Route::get('/deactivate-premium/user/{user}', 'premiumAccessRevoke');
     });
-    Route::controller(ProfileInfoController::class)->group(function () {
-        Route::prefix('admin')->group(function () {
+
+    Route::prefix('admin')->group(function () {
+        Route::controller(ProfileInfoController::class)->group(function () {
             Route::get('/profile/info', 'profileInfo');
             Route::post('/profile/info', 'saveProfileInfo');
             Route::put('/profile/info', 'updateProfileInfo');
+        });
+        //Admin users
+        Route::controller(ManageAdminUsers::class)->group(function (){
+            Route::get('/users', 'allAdminUsers');
+            Route::delete('/users', 'deleteAdminUsers');
         });
     });
 
