@@ -3,18 +3,13 @@
 namespace App\Support\Services\Auth;
 
 use App\Contracts\DataObjects\User\CreateUserData;
-use App\Contracts\Enums\OtpCodeTypes;
-use App\Contracts\Enums\UserStates;
 use App\Models\Country;
-use App\Models\OtpCode;
-use App\Models\SubscriptionPlan;
-use App\Models\User;
 use App\Notifications\Auth\VerifyEmailNotice;
 use App\Support\Helpers\SmsSender;
 use App\Support\Services\BaseService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
@@ -37,31 +32,27 @@ class RegistrationService extends BaseService
         }
 
         try {
-            $user = User::query()->create(CreateUserData::fromRequest($request)->toArray());
-            $user->update(['phone' => $phoneUtil->format($numberProto, PhoneNumberFormat::E164)]);
-            $user->update(['password' => $request->password]);
+            $signupData = [
+                ...CreateUserData::fromRequest($request)->toArray(),
+                'phone'    => $phoneUtil->format($numberProto, PhoneNumberFormat::E164),
+                'password' => $request->password
+            ];
 
             $token = rand(1000, 9999);
 
-            OtpCode::create([
-                'type' => OtpCodeTypes::VERIFICATION->value,
-                'email' => $user->email,
-                'token' => $token,
-            ]);
+            Cache::put("REGISTRATION_DATA_{$request->email}", $signupData, now()->addMinutes(15));
+            Cache::put("EMAIL_VERIFICATION_{$request->email}", $token, now()->addMinutes(15));
 
-            //enroll user in free plan
-            $user->subscriptions()->attach(SubscriptionPlan::first());
-
-            DB::commit();
-
-            $user->notify(new VerifyEmailNotice($user, $token));
-            $smsSender->send($this->getMessage($token), $user->phone);
+            Notification::route('mail', $request->email)->notify(
+                new VerifyEmailNotice($request->email, $request->firstname, $token)
+            );
+            $smsSender->send($this->getMessage($token), $request->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [
-                'email' => $user->email,
+                'email' => $request->email,
             ]);
         } catch (\Throwable $th) {
-            Log::error($th);
+           report($th);
 
             return $this->errorResponse(__('responses.unknownError'));
         }
@@ -77,14 +68,18 @@ class RegistrationService extends BaseService
         }
 
         try {
-            $user = User::query()->create(CreateUserData::fromRequest($request)->toArray());
-            $user->update(['phone' => $phoneUtil->format($numberProto, PhoneNumberFormat::E164)]);
+            $signupData = [
+                ...CreateUserData::fromRequest($request)->toArray(),
+                'phone'    => $phoneUtil->format($numberProto, PhoneNumberFormat::E164),
+            ];
+
+            Cache::put("REGISTRATION_DATA_{$request->email}", $signupData, now()->addHour());
 
             return $this->successResponse(data: [
-                'email' => $user->email,
+                'email' => $request->email,
             ]);
         } catch (\Throwable $th) {
-            Log::error($th);
+            report($th);
 
             return $this->errorResponse(__('responses.unknownError'));
         }
@@ -92,38 +87,29 @@ class RegistrationService extends BaseService
 
     public function passwordSignup(object $request, SmsSender $smsSender): JsonResponse
     {
-        $user = User::query()->where('email', $request->email)->first();
-
-        if ($user->status === UserStates::ACTIVE) {
-            return $this->errorResponse(__('responses.invalidRequest'));
-        }
-
         try {
+            $regData = Cache::get("REGISTRATION_DATA_{$request->email}");
 
-            DB::beginTransaction();
-
+            $signupData =  [
+                ...$regData,
+                'password' => $request->password,
+            ];
+            
             $token = rand(1000, 9999);
-            $user->update(['password' => $request->password]);
 
-            OtpCode::create([
-                'type' => OtpCodeTypes::VERIFICATION->value,
-                'email' => $user->email,
-                'token' => $token,
-            ]);
+            Cache::put("REGISTRATION_DATA_{$request->email}", $signupData, now()->addMinutes(15));
+            Cache::put("EMAIL_VERIFICATION_{$request->email}", $token, now()->addMinutes(15));
 
-            //enroll user in free plan
-            $user->subscriptions()->attach(SubscriptionPlan::first());
-
-            DB::commit();
-
-            $user->notify(new VerifyEmailNotice($user, $token));
-            $smsSender->send($this->getMessage($token), $user->phone);
+            Notification::route('mail', $request->email)->notify(
+                new VerifyEmailNotice($request->email, $regData->firstname, $token)
+            );
+            $smsSender->send($this->getMessage($token), $request->phone);
 
             return $this->successResponse(__('responses.userRegistered'), [
-                'email' => $user->email,
+                'email' => $request->email,
             ]);
         } catch (\Throwable $th) {
-            Log::error($th);
+            report($th);
 
             return $this->errorResponse(__('responses.unknownError'));
         }

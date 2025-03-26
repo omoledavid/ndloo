@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Contracts\Enums\OtpCodeTypes;
-use App\Models\OtpCode;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 
 class VerifyEmailRequest extends FormRequest
 {
@@ -16,18 +15,6 @@ class VerifyEmailRequest extends FormRequest
         return true;
     }
 
-    public function getAccount(): ?OtpCode
-    {
-        return OtpCode::query()
-            ->where([
-                ['email', $this->email],
-                ['type', OtpCodeTypes::VERIFICATION->value],
-                ['token', $this->token],
-            ])
-            ->with('user')
-            ->first();
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -35,9 +22,15 @@ class VerifyEmailRequest extends FormRequest
      */
     public function rules(): array
     {
+        $cacheValue = intval(Cache::get("EMAIL_VERIFICATION_{$this->email}"));
+
         return [
             'email' => 'required|email',
-            'token' => 'required|integer|min:1000|max:9999',
+            'token' => function ($attr, $val, $fail) use ($cacheValue) {
+                if (intval($val) !== $cacheValue) {
+                    return $fail('Invalid verification code');
+                }
+            }
         ];
     }
 }

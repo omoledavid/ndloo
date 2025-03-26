@@ -2,7 +2,6 @@
 
 namespace App\Notifications\Auth;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -16,7 +15,11 @@ class VerifyEmailNotice extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private readonly User $user, private readonly int $token) {}
+    public function __construct(
+        private readonly string $email,
+        private readonly string $name,
+        private readonly int $token
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -38,8 +41,8 @@ class VerifyEmailNotice extends Notification
         return (new MailMessage)
             ->subject(GoogleTranslate::trans('Email Verification Otp', $language, 'en'))
             ->markdown("mails.$language.verifyEmail", [
-                'name' => $this->user->name,
-                'email' => $this->user->email,
+                'name' => $this->name,
+                'email' => $this->email,
                 'token' => $this->token,
             ]);
     }
