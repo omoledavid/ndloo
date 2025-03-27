@@ -28,6 +28,7 @@ class PaymentController extends BaseService
 
         // Verify the payment using the reference
         $verification = $this->paystackService->verifyPayment($reference);
+        $verification['data']['amount'] = $verification['data']['amount'] / 100;
 
         if ($verification['status']) {
             // Payment was successful
