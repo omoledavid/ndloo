@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Enums\SubscriptionStatus;
 use App\Contracts\Enums\UserStates;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\UserResource;
@@ -101,6 +102,7 @@ class ManageUsersController extends BaseService
         // Detach subscriptions for each user
         foreach ($users as $user) {
             $user->subscriptions()->detach();
+            $user->subscriptions()->attach(SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first());
         }
 
         return $this->successResponse('User(s) premium access granted', [
