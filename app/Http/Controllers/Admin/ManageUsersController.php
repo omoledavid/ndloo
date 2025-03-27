@@ -141,6 +141,33 @@ class ManageUsersController extends BaseService
             'user' => new UserResource($user)
         ]);
     }
+    public function creditUser(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|string|exists:users,id',
+            'amount' => 'required|integer|min:1',
+        ]);
+        $user = $request->user();
+        $user->update([
+            'wallet' => $user->wallet + $request->amount
+        ]);
+        return $this->successResponse('User has been credited',data: [
+            'credit_user' => new UserResource($user),
+        ]);
+    }
+    public function clearBalance(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|string|exists:users,id'
+        ]);
+        $user = $request->user();
+        $user->update([
+            'wallet' => 0
+        ]);
+        return $this->successResponse('User balance has been cleared',data: [
+            'user' => new UserResource($user),
+        ]);
+    }
 
     public function stats(): JsonResponse
     {

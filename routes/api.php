@@ -49,6 +49,8 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::get('/activate/user/{user}', 'activateUser');
         Route::post('/premium/user', 'premiumAccess');
         Route::post('/deactivate-premium/user', 'premiumAccessRevoke');
+        Route::post('credit-user', 'creditUser');
+        Route::post('clear-balance', 'clearBalance');
     });
 
     Route::prefix('admin')->group(function () {
