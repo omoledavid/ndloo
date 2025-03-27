@@ -62,6 +62,10 @@ class EmailVerificationService extends BaseService
             DB::commit();
 
             //$request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
+            notify($user, 'SUBSCRIPTION',[
+                'plan' => $plan->name,
+                'price' => $plan->price,
+            ], ['email']);
 
             return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name . ' ' . $plan->category?->name]));
         } catch (\Throwable $th) {

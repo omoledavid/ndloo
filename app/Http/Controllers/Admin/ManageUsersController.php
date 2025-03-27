@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Contracts\Enums\SubscriptionStatus;
+use App\Contracts\Enums\TransactionDuration;
 use App\Contracts\Enums\UserStates;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\UserResource;
@@ -98,11 +99,19 @@ class ManageUsersController extends BaseService
         if ($users->isEmpty()) {
             return $this->errorResponse('No valid users found', 404);
         }
+        $plan = SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first();
+        $duration = $this->getDuration($request->query('duration'));
+        $expiryDate = Carbon::now()->addMonth($duration)->toDateTimeString();
 
         // Detach subscriptions for each user
         foreach ($users as $user) {
             $user->subscriptions()->detach();
-            $user->subscriptions()->attach(SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first());
+            $user->subscriptions()->attach($plan);
+            notify($user, 'SUBSCRIPTION',[
+                'plan' => $plan->name,
+                'price' => $plan->price,
+                'expiry' => $expiryDate,
+            ], ['email']);
         }
 
         return $this->successResponse('User(s) premium access granted', [
@@ -115,6 +124,7 @@ class ManageUsersController extends BaseService
         $userIds = is_array($request->user_id) ? $request->user_id : [$request->user_id]; // Convert single ID to an array
 
         $users = User::whereIn('id', $userIds)->get();
+        $plan = SubscriptionPlan::query()->where('is_default', SubscriptionStatus::ENABLE)->first();
 
         if ($users->isEmpty()) {
             return $this->errorResponse('No valid users found', 404);
@@ -123,6 +133,9 @@ class ManageUsersController extends BaseService
         // Detach subscriptions for each user
         foreach ($users as $user) {
             $user->subscriptions()->detach();
+            notify($user, 'UNSUBSCRIBE',[
+                'plan' => $plan->name,
+            ], ['email']);
         }
 
         return $this->successResponse('User(s) premium access revoked', [
@@ -352,6 +365,10 @@ class ManageUsersController extends BaseService
             'years' => array_column($formattedActiveUsers, 'year'),
             'active_users' => array_column($formattedActiveUsers, 'total'),
         ];
+    }
+    private function getDuration(?int $duration): int
+    {
+        return in_array($duration, TransactionDuration::values()) ? $duration : 1;
     }
 
 }
