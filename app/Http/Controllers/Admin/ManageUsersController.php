@@ -164,6 +164,9 @@ class ManageUsersController extends BaseService
         $user->update([
             'wallet' => $user->wallet + $request->amount
         ]);
+        notify($user, 'TOPUP_SUCCESS',[
+            'amount' => floatval($request->amount),
+        ], ['email']);
         return $this->successResponse('User has been credited',data: [
             'credit_user' => new UserResource($user),
         ]);
