@@ -52,6 +52,11 @@ class SubscriptionService extends BaseService
 
             DB::commit();
 
+            notify($request->user(), 'SUBSCRIPTION',[
+                'plan' => $plan->name,
+                'price' => $plan->price,
+                'expiry' => $expiryDate,
+            ], ['email']);
             //$request->user()->notify(new SubscriptionNotice($request->user(), $plan, $expiryDate));
 
             return $this->successResponse(__('responses.planSubscribed', ['name' => $plan->name.' '.$plan->category?->name]));
@@ -77,8 +82,10 @@ class SubscriptionService extends BaseService
 
             DB::commit();
 
-            $request->user()->notify(new UnsubscriptionNotice($request->user(), $plan));
-
+//            $request->user()->notify(new UnsubscriptionNotice($request->user(), $plan));
+            notify($request->user(), 'UNSUBSCRIBE',[
+                'plan' => $plan->name,
+            ], ['email']);
             return $this->successResponse(__('responses.planUnsubscribed', ['name' => $plan->name]));
         } catch (\Throwable $th) {
             Log::error($th);

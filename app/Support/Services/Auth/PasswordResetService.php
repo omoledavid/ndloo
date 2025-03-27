@@ -28,9 +28,7 @@ class PasswordResetService extends BaseService
 
         //send otp via twilio sms service and email
         //$user->notify(new PasswordOtpNotice($user, $token));
-        notify($user, 'EVER_CODE', [
-            'code' => $token,
-        ], ['email']);
+        notify($user, 'PASSWORD_RESET', sendVia: ['email']);
         $smsSender->send($this->getMessage($token), $user->phone);
 
         return $this->successResponse(__('responses.otpSent'), [

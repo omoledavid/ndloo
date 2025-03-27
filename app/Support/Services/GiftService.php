@@ -139,6 +139,10 @@ class GiftService extends BaseService
             $giftIsMine->save();
 
             DB::commit();
+            notify($request->user(), 'GIFT_REDEEMED',[
+                'gift-amount' => $giftAmount,
+                'amount' => $finalAmount,
+            ], ['email']);
             //            $request->user()->notify(new GiftRedeemedNotice($request->user(), $gift->plan->amount / 2));
 
             return $this->successResponse(__('responses.giftRedeemed'));
