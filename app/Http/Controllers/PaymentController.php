@@ -41,7 +41,7 @@ class PaymentController extends BaseService
             $handled = PaymentHandler::successfulPayment($user, $payment, $txData);
 
             return $handled
-                ? redirect()->away($payment->callback_url ?? 'https://ndloo.com')
+                ? redirect()->away($payment->callback_url ?? 'https://ndloo.com/dashboard/wallet')
                 : $this->errorResponse(_('responses.unknownError'));
         }
 
