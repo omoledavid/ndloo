@@ -32,6 +32,7 @@ class EmailVerificationService extends BaseService
             }
 
             //$user->notify(new WelcomeNotice($user));
+            notify($user, 'WELCOME', ['email']);
             if (ss('auto-subscription') == 1) {
                 $this->autoSub($user);
             }
