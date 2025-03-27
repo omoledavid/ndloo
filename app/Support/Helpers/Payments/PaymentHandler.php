@@ -13,17 +13,17 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentHandler
 {
-    private const SUPPORTED_CURRENCIES = ['USD', 'NGN'];
+    private const CURRENCY = 'USD';
 
-    public static function getUsdAmount(int|float $amount, string $currency, int|float $rate): float
+    public static function getUsdAmount(int|float $amount, string $currency, int|float $rate): int
     {
-        return in_array(strtoupper($currency), self::SUPPORTED_CURRENCIES, true)
-            ? $amount
-            : round($amount / $rate, 2, PHP_ROUND_HALF_DOWN);
+        return $currency === self::CURRENCY ? $amount : round($amount / $rate, 2, mode: PHP_ROUND_HALF_DOWN);
     }
 
     public static function generateTransactionData(Payment $payment, array $responseData): TransactionData
     {
+//            Log::info('first :'.$responseData['currencyCode'].' '. $responseData['currency']);
+        Log::info('new', ['data' => $payment->rate]);
         return TransactionData::fromArray([
             'name' => ucfirst($payment->type),
             'reference' => $payment->reference,
