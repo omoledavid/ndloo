@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\NotificationTemplate;
 use App\Models\PaymentOption;
 use App\Models\Setting;
 use App\Models\SubscriptionCategory;
@@ -82,5 +83,25 @@ class SettingController extends BaseService
         $paymentOption->update($filteredData);
 
         return $this->successResponse('Payment gateway updated successfully');
+    }
+    public function allEmailTemplate()
+    {
+        $emailTemplates = NotificationTemplate::query()->get();
+
+        return $this->successResponse('success',data:[
+            'emailTemplates' => $emailTemplates,
+        ]);
+    }
+    public function viewTemplate($id)
+    {
+        $template = NotificationTemplate::query()->find($id);
+        return $this->successResponse('success',data:[
+            'template' => [
+                'id' => $template->id,
+                'name' => $template->name,
+                'codes' => json_decode($template->shortcodes, true),
+                'body' => $template->email_body,
+            ],
+        ]);
     }
 }
