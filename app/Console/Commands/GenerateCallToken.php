@@ -35,16 +35,23 @@ class GenerateCallToken extends Command
             ->lazyById()
             ->each(function (object $user) {
                 $user->update([
-                    'token' => RtcTokenBuilder::buildTokenWithUid(
-                        SettingStates::AGORA_APP_ID->getValue(),
-                        SettingStates::AGORA_APP_CERTIFICATE->getValue(),
-                        $user->id,
-                        0,
-                        self::PUBLISHER,
-                        Carbon::now()->addHours(24)->timestamp
-                    ),
+                    'token' => generateCallToken($user->id)
                 ]);
             });
+//        User::query()
+//            ->lazyById()
+//            ->each(function (object $user) {
+//                $user->update([
+//                    'token' => RtcTokenBuilder::buildTokenWithUid(
+//                        SettingStates::AGORA_APP_ID->getValue(),
+//                        SettingStates::AGORA_APP_CERTIFICATE->getValue(),
+//                        $user->id,
+//                        0,
+//                        self::PUBLISHER,
+//                        Carbon::now()->addHours(24)->timestamp
+//                    ),
+//                ]);
+//            });
 
     }
 }
