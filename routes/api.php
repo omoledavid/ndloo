@@ -19,6 +19,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\Admin\ManageUsersController;
 use App\Http\Controllers\Admin\BoostController as AdminBoostController;
@@ -39,6 +40,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 //Admin
 Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
+    Route::post('test-mail', [TestController::class, 'testMail']);
     //Manage user
     Route::controller(ManageUsersController::class)->group(function () {
         Route::post('/all-users', 'allUsers');
@@ -60,7 +62,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
             Route::put('/profile/info', 'updateProfileInfo');
         });
         //Admin users
-        Route::controller(ManageAdminUsers::class)->group(function (){
+        Route::controller(ManageAdminUsers::class)->group(function () {
             Route::get('/users', 'allAdminUsers');
             Route::delete('/users/{admin}', 'deleteAdminUsers')->middleware('subAdmin.status');
             Route::post('/change-password/{admin}', 'passwordChange');

@@ -77,9 +77,17 @@ class GiftService extends BaseService
                         'usdAmount' => $giftPlan->amount,
                     ])->toArray());
                 });
+                notify($sender, 'GIFT_SENT',[
+                    'amount' => $giftPlan->amount,
+                    'recipient' => $recipient->firstname,
+                ], ['email']);
+                notify($recipient, 'GIFT_SENT',[
+                    'amount' => $giftPlan->amount,
+                    'recipient' => $sender->firstname,
+                ], ['email']);
 
-                $sender->notify(new GiftSentNotice($recipient, $giftPlan->amount));
-                $recipient->notify(new GiftReceivedNotice($sender, $giftPlan->amount));
+//                $sender->notify(new GiftSentNotice($recipient, $giftPlan->amount));
+//                $recipient->notify(new GiftReceivedNotice($sender, $giftPlan->amount));
             });
 
             return $this->successResponse(__('responses.giftSent'));
@@ -101,9 +109,21 @@ class GiftService extends BaseService
         try {
 
             DB::beginTransaction();
+            $conversionCharge = ss('gift-conversion-charge');
+            $giftAmount = $gift->plan->amount;
+
+            // Calculate the charge amount (10%)
+            $chargeAmount = ($giftAmount * $conversionCharge) / 100;
+
+            // Subtract the charge from the gift amount
+            $finalAmount = $giftAmount - $chargeAmount;
+
+            // Update user's wallet
             $request->user()->update([
-                'wallet' => $request->user()->wallet + ($gift->plan->amount / 2),
+                'wallet' => $request->user()->wallet + $finalAmount,
             ]);
+
+
 
             //create transaction
             Transaction::create(TransactionData::fromArray([
@@ -112,7 +132,7 @@ class GiftService extends BaseService
                 'amount' => $gift->plan->amount / 2,
                 'icon' => TransactionIcons::GIFT->value,
                 'currency' => 'USD',
-                'usdAmount' => $gift->plan->amount / 2,
+                'usdAmount' => $finalAmount,
             ])->toArray());
 
             $giftIsMine->status = 'redeemed';
@@ -124,7 +144,6 @@ class GiftService extends BaseService
             return $this->successResponse(__('responses.giftRedeemed'));
         } catch (\Throwable $th) {
             DB::rollBack();
-            Log::error($th);
 
             return $this->errorResponse(__('responses.unknownError'));
         }
