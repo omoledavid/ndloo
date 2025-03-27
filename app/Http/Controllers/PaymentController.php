@@ -8,6 +8,7 @@ use App\Support\Helpers\Payments\PaymentHandler;
 use App\Support\Services\BaseService;
 use App\Support\Services\PaystackService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends BaseService
 {
@@ -30,7 +31,7 @@ class PaymentController extends BaseService
         $verification = $this->paystackService->verifyPayment($reference);
         $verification['data']['amount'] = $verification['data']['amount'] / 100;
 
-        if ($verification['status']) {
+        if ($verification['data']['status'] == 'success') {
             // Payment was successful
             $payment = Payment::where('reference', $reference)->first();
             $payment->status = PaymentStatus::PENDING;
@@ -40,7 +41,7 @@ class PaymentController extends BaseService
             $handled = PaymentHandler::successfulPayment($user, $payment, $txData);
 
             return $handled
-                ? $this->successResponse(__('responses.paymentSuccessful'))
+                ? redirect()->away($payment->callback_url ?? 'https://ndloo.com')
                 : $this->errorResponse(_('responses.unknownError'));
         }
 

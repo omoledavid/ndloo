@@ -17,6 +17,7 @@ class Payment extends Model
         'channel',
         'currency',
         'status',
+        'callback_url',
         'rate',
         'amount',
     ];

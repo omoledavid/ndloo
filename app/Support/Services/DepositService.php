@@ -49,7 +49,6 @@ class DepositService extends BaseService
         // Determine the payment channel (from .env or provided)
         $channel = $request->channel ? $request->channel : env('DEFAULT_PAYMENT_CHANNEL', 'tranzak'); // Default to 'paystack'
 
-
         // Set up the payment data to store or use later
         $paymentData = [
             'user_id' => $request->user()->id,
@@ -59,6 +58,7 @@ class DepositService extends BaseService
             'status' => PaymentStatus::PENDING,
             'currency' => $request->currency,
             'rate' => $rate->deposit_rate,
+            'callback_url' => $request->callback_url,
             'amount' => $request->amount,
         ];
 

@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentHandler
 {
-    private const CURRENCY = 'USD';
+    private const SUPPORTED_CURRENCIES = ['USD', 'NGN'];
 
-    public static function getUsdAmount(int|float $amount, string $currency, int|float $rate): int
+    public static function getUsdAmount(int|float $amount, string $currency, int|float $rate): float
     {
-        return $currency === self::CURRENCY ? $amount : round($amount / $rate, 2, mode: PHP_ROUND_HALF_DOWN);
+        return in_array(strtoupper($currency), self::SUPPORTED_CURRENCIES, true)
+            ? $amount
+            : round($amount / $rate, 2, PHP_ROUND_HALF_DOWN);
     }
 
     public static function generateTransactionData(Payment $payment, array $responseData): TransactionData
@@ -47,6 +49,7 @@ class PaymentHandler
         //topup user wallet, delete payment and add transaction, and send notices
         try {
             DB::beginTransaction();
+            Log::info('amount'.$txData->usdAmount, ['data' => $txData->toArray()] );
 
             $user->update(['wallet' => $user->wallet + floatval($txData->usdAmount)]);
             Transaction::create($txData->toArray());

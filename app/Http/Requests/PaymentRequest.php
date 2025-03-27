@@ -24,6 +24,7 @@ class PaymentRequest extends FormRequest
         return [
             'currency' => 'required|string',
             'amount' => 'required|numeric',
+            'callback_url' => 'nullable|url',
         ];
     }
 }
