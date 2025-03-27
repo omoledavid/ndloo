@@ -42,8 +42,8 @@ class GiftService extends BaseService
         try {
             Cache::lock(request()->user()->id, 10)->block(10, function () use ($giftPlan, $recipient) {
                 $sender                 =  User::where('id', request()->user()->id)->first();
-                $senderBalanceAfter     =  floatval(bcsub($sender->wallet, $giftPlan->amount, 2));
-                $recipientBalanceAfter  =  floatval(bcadd($recipient->wallet, $giftPlan->amount, 2));
+                    $senderBalanceAfter     =  floatval(bcsub(strval($sender->wallet), $giftPlan->amount, 2));
+                $recipientBalanceAfter  =  floatval(bcadd(strval($recipient->wallet), $giftPlan->amount, 2));
 
                 if ($senderBalanceAfter < 0) {
                     throw new \Exception(__('responses.insufficientFunds'));
