@@ -147,7 +147,7 @@ class ManageUsersController extends BaseService
             'user_id' => 'required|string|exists:users,id',
             'amount' => 'required|integer|min:1',
         ]);
-        $user = $request->user();
+        $user = User::query()->where('id', $request->user_id)->first();
         $user->update([
             'wallet' => $user->wallet + $request->amount
         ]);
