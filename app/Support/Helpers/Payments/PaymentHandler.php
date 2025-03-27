@@ -17,13 +17,14 @@ class PaymentHandler
 
     public static function getUsdAmount(int|float $amount, string $currency, int|float $rate): int
     {
-        return $currency === self::CURRENCY ? $amount : round($amount / $rate, 2, mode: PHP_ROUND_HALF_DOWN);
+        Log::info('rate: '.$rate).' amount: '.$amount.' currency: '.$currency;
+        $result = $currency === self::CURRENCY ? $amount : round($amount / $rate, 2, mode: PHP_ROUND_HALF_DOWN);
+        Log::info('result: '.$result);
+        return $result;
     }
 
     public static function generateTransactionData(Payment $payment, array $responseData): TransactionData
     {
-//            Log::info('first :'.$responseData['currencyCode'].' '. $responseData['currency']);
-        Log::info('new', ['data' => $payment->rate]);
         return TransactionData::fromArray([
             'name' => ucfirst($payment->type),
             'reference' => $payment->reference,
@@ -49,7 +50,6 @@ class PaymentHandler
         //topup user wallet, delete payment and add transaction, and send notices
         try {
             DB::beginTransaction();
-            Log::info('amount'.$txData->usdAmount, ['data' => $txData->toArray()] );
 
             $user->update(['wallet' => $user->wallet + floatval($txData->usdAmount)]);
             Transaction::create($txData->toArray());
