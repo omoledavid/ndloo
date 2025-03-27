@@ -3,6 +3,7 @@
 use App\Models\GeneralSetting;
 use App\Models\Setting;
 use App\Notify\Notify;
+use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 
 function gs($key = null)
@@ -51,4 +52,16 @@ function notify($user, $templateName, $shortCodes = null, $sendVia = null, $crea
     $notify->userColumn = isset($user->id) ? $user->getForeignKey() : 'user_id';
     $notify->clickValue = $clickValue;
     $notify->send();
+}
+
+function generateCallToken($userId) {
+    $apiKey = env('STREAM_API_KEY');
+    $apiSecret = env('STREAM_API_SECRET');
+    $payload = [
+        'user_id' => $userId,
+        'iat' => time(),
+        'exp' => time() + 3600, // 1-hour expiration
+    ];
+
+    return JWT::encode($payload, $apiSecret, 'HS256');
 }
