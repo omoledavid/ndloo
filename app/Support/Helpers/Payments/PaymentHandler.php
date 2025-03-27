@@ -58,6 +58,9 @@ class PaymentHandler
             DB::commit();
 
 //            $user->notify(new TopupSuccessNotice($user, $txData->usdAmount));
+            notify($user, 'TOPUP_SUCCESS',[
+                'amount' => floatval($txData->usdAmount),
+            ], ['email']);
 
             return true;
         } catch (\Throwable $th) {
@@ -75,7 +78,10 @@ class PaymentHandler
     ): ?bool
     {
         $payment->delete();
-        $user->notify(new TopupFailedNotice($user, $txData->usdAmount));
+        notify($user, 'TOPUP_FAILED',[
+            'amount' => floatval($txData->usdAmount),
+        ], ['email']);
+//        $user->notify(new TopupFailedNotice($user, $txData->usdAmount));
 
         return true;
     }
