@@ -160,7 +160,7 @@ class ManageUsersController extends BaseService
         $request->validate([
             'user_id' => 'required|string|exists:users,id'
         ]);
-        $user = $request->user();
+        $user = User::query()->where('id', $request->user_id)->first();
         $user->update([
             'wallet' => 0
         ]);
