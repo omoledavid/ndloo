@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16b76265576de58e8446775c2dce723b",
+    "content-hash": "a9cf28909170629f876ce958d8056a3c",
     "packages": [
         {
             "name": "brick/math",
@@ -709,6 +709,65 @@
                 }
             ],
             "time": "2023-10-12T05:21:21+00:00"
+        },
+        {
+            "name": "get-stream/stream",
+            "version": "v7.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GetStream/stream-php.git",
+                "reference": "f82830288033d84be6113e82e324f446ab998b62"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GetStream/stream-php/zipball/f82830288033d84be6113e82e324f446ab998b62",
+                "reference": "f82830288033d84be6113e82e324f446ab998b62",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^v6.4.0",
+                "guzzlehttp/guzzle": "^7.5.0",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.14.0",
+                "phan/phan": "^5.4.0",
+                "phpunit/phpunit": "^9.6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "GetStream\\Stream": "lib/"
+                },
+                "psr-4": {
+                    "GetStream\\Unit\\": "tests/unit/",
+                    "GetStream\\Stubs\\": "tests/stubs/",
+                    "GetStream\\Integration\\": "tests/integration/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Tommaso Barbugli",
+                    "email": "support@getstream.io"
+                }
+            ],
+            "description": "A PHP client for Stream (https://getstream.io)",
+            "homepage": "https://getstream.io",
+            "keywords": [
+                "feedly",
+                "newsfeed",
+                "stream"
+            ],
+            "support": {
+                "docs": "https://getstream.io/activity-feeds/docs/?language=php",
+                "issues": "https://github.com/GetStream/stream-php/issues",
+                "source": "https://github.com/GetStream/stream-php/tree/v7.1.0"
+            },
+            "time": "2023-10-31T13:33:02+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",

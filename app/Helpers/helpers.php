@@ -4,7 +4,10 @@ use App\Models\GeneralSetting;
 use App\Models\Setting;
 use App\Notify\Notify;
 use Firebase\JWT\JWT;
+use GetStream\Stream\Client;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 function gs($key = null)
 {
@@ -64,4 +67,10 @@ function generateCallToken($userId) {
     ];
 
     return JWT::encode($payload, $apiSecret, 'HS256');
+}
+
+function getStreamToken($user)
+{
+    $client = new Client(env('STREAM_API_KEY'), env('STREAM_API_SECRET'));
+    return $response = $client->createUserToken($user->id);
 }

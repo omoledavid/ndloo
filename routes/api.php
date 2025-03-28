@@ -92,6 +92,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
     Route::controller(AdminSubscriptionController::class)->group(function () {
         Route::get('/subscriptions', 'getSubscriptions');
         Route::get('/toggle-sub/{subscription}', 'toggleSub');
+        Route::get('/toggle-status/{subscription}', 'toggleStatus');
         Route::get('/subscriptions/stats', 'subscriptionStat');
         Route::get('/subscription/{subscription}', 'getSubscription');
         Route::post('/subscription/edit/{subscription}', 'editSubscription');

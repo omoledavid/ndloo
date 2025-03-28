@@ -110,7 +110,21 @@ class SubscriptionController extends BaseService
         $subscription->update([
             'is_default' => $subscriptionStat
         ]);
-        return $this->successResponse('Successfully',data: [
+        return $this->successResponse('Successful',data: [
+            'subscription' => $subscription,
+        ]);
+    }
+    public function toggleStatus(SubscriptionPlan $subscription){
+        $planStatus = SubscriptionPlan::query()->where('status', SubscriptionStatus::ENABLE)->first();
+        if($planStatus){
+            $planStatus->status = SubscriptionStatus::DISABLE;
+            $planStatus->save();
+        }
+        $subscriptionStat = $subscription->status == SubscriptionStatus::ENABLE->value ? SubscriptionStatus::DISABLE->value : SubscriptionStatus::ENABLE->value;
+        $subscription->update([
+            'status' => $subscriptionStat
+        ]);
+        return $this->successResponse('Successful',data: [
             'subscription' => $subscription,
         ]);
     }
