@@ -37,6 +37,10 @@ class SettingController extends BaseService
             'twilio-sid' => 'nullable',
             'twilio-auth-token' => 'nullable',
             'twilio-number' => 'nullable',
+            'gift-conversion-charge' => 'nullable|integer|min:1|max:100',
+            'withdrawal_charge' => 'nullable|integer|min:1|max:100',
+
+
 
         ]);
         return $this->settingService->update($request);

@@ -154,4 +154,13 @@ class User extends Authenticatable
     {
         return $this->firstname . ' ' . $this->lastname;
     }
+    public function getAccessToken()
+    {
+        $token = PersonalAccessToken::where('tokenable_id', $this->id)
+            ->where('tokenable_type', self::class)
+            ->latest()
+            ->first();
+
+        return $token ? $token->token : null;
+    }
 }

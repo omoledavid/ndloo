@@ -35,7 +35,7 @@ class GenerateCallToken extends Command
             ->lazyById()
             ->each(function (object $user) {
                 $user->update([
-                    'token' => generateCallToken($user->id)
+                    'token' => getStreamToken($user)
                 ]);
             });
 //        User::query()
