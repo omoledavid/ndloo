@@ -21,7 +21,7 @@ class IsAdmin
     {
         if(Auth::check()){
             $user = Auth::user();
-            if($user->type == UserType::ADMIN || $user->type == UserType::SUPER_ADMIN)
+            if($user->type == UserType::ADMIN->value || $user->type == UserType::SUPER_ADMIN->value)
             {
                 return $next($request);
             }else{
