@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Contracts\Enums\UserType;
 use App\Contracts\Traits\HasResponse;
 use Closure;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class IsAdmin
     {
         if(Auth::check()){
             $user = Auth::user();
-            if($user->is_admin)
+            if($user->type == UserType::ADMIN || $user->type == UserType::SUPER_ADMIN)
             {
                 return $next($request);
             }else{
