@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Services\Auth;
 
 use App\Contracts\Enums\OtpCodeTypes;
+use App\Contracts\Enums\UserStates;
 use App\Http\Resources\UserResource;
 use App\Models\AppToken;
 use App\Models\OtpCode;
@@ -22,7 +23,7 @@ class LoginService extends BaseService
     {
         $user = User::where('email', $request->email)->first();
         $token = rand(1000, 9999);
-        if($user){
+        if ($user) {
             notify($user, 'EVER_CODE', [
                 'code' => $token,
             ], ['email']);
@@ -56,14 +57,27 @@ class LoginService extends BaseService
 
         $user = User::find($request->getAccount()->user->id);
         $request->getAccount()->delete();
-        Auth::login($user);
 
+        if ($user->status !== UserStates::ACTIVE->value) {
+            return $this->successResponse(data: [
+                'verified' => false,
+                'user' => new UserResource($user),
+            ]);
+        }
+
+        Auth::login($user);
         return $this->loginResponse($request);
     }
 
     public function login(object $request): JsonResponse
     {
         if (Auth::attempt($request->authData())) {
+            if (Auth::user()->status !== UserStates::ACTIVE->value) {
+                return $this->successResponse(data: [
+                    'verified' => false,
+                    'user' => new UserResource(Auth::user()),
+                ]);
+            }
 
             return $this->loginResponse($request);
         }
@@ -83,6 +97,7 @@ class LoginService extends BaseService
         $token = Auth::user()->createToken('Auth token')->plainTextToken;
 
         return $this->successResponse(data: [
+            'verified' => true,
             'token' => $token,
             'user' => new UserResource(Auth::user()),
         ]);
