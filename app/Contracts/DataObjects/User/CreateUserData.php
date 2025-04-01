@@ -16,7 +16,7 @@ class CreateUserData extends BaseData
         public readonly string $username,
         public readonly string|int $age,
         public readonly string $phone,
-        public readonly string|int $type,
+        public readonly string|int|null $type,
         public readonly string|int $country_id,
         public readonly string $gender,
         public readonly string|float|null $latitude = null,
