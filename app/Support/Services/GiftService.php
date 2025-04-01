@@ -33,7 +33,7 @@ class GiftService extends BaseService
     public function myPlans(): JsonResponse
     {
         return $this->successResponse(data: [
-            'plans' => UserGift::where('user_id', auth()->user()->id)->where('status', '!=', 'redeemed')->with('plan')->get(),
+            'plans' => UserGift::where('user_id', auth()->user()->id)->with('plan')->get(),
         ]);
     }
 
@@ -101,7 +101,7 @@ class GiftService extends BaseService
     public function redeem(UserGift $gift, Request $request): JsonResponse
     {
         $gift->load('plan');
-        $giftIsMine = UserGift::where('user_id', $request->user()->id)->where('id', $gift->id)->first();
+        $giftIsMine = UserGift::where('user_id', $request->user()->id)->where('id', $gift->id)->where('status', '!=', 'redeemed')->first();
         if (!$giftIsMine) {
             return $this->errorResponse(__('responses.giftNotMine'));
         }
