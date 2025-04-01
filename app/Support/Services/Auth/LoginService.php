@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\Auth\LoginOtpNotice;
 use App\Support\Helpers\SmsSender;
 use App\Support\Services\BaseService;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,10 +60,7 @@ class LoginService extends BaseService
         $request->getAccount()->delete();
 
         if ($user->status !== UserStates::ACTIVE->value) {
-            return $this->successResponse(data: [
-                'verified' => false,
-                'user' => new UserResource($user),
-            ]);
+            return $this->verifyEmailResponse($user);
         }
 
         Auth::login($user);
@@ -73,16 +71,36 @@ class LoginService extends BaseService
     {
         if (Auth::attempt($request->authData())) {
             if (Auth::user()->status !== UserStates::ACTIVE->value) {
-                return $this->successResponse(data: [
-                    'verified' => false,
-                    'user' => new UserResource(Auth::user()),
-                ]);
+                return $this->verifyEmailResponse(Auth::user());
             }
 
             return $this->loginResponse($request);
         }
 
         return $this->errorResponse(__('responses.invalidCredentials'));
+    }
+
+    public function verifyEmailResponse(User|Authenticatable $user): JsonResponse
+    {
+        $token   = rand(1000, 9999);
+        $message = "Use the code $token to verify your Ndloo account";
+
+        OtpCode::create([
+            'type'  => OtpCodeTypes::VERIFICATION->value,
+            'email' => $user->email,
+            'token' => $token,
+        ]);
+
+        notify($user, 'EVER_CODE', [
+            'code' => $token,
+        ], ['email']);
+
+        app(SmsSender::class)->send($message, $user->phone);
+
+        return $this->successResponse(data: [
+            'verified' => false,
+            'user' => new UserResource($user),
+        ]);
     }
 
     public function loginResponse(Request $request): JsonResponse
