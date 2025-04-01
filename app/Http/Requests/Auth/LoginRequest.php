@@ -20,7 +20,6 @@ class LoginRequest extends FormRequest
         return [
             'email' => $this->email,
             'password' => $this->password,
-            'status' => UserStates::ACTIVE->value,
         ];
     }
 
