@@ -108,4 +108,12 @@ class SettingController extends BaseService
             ],
         ]);
     }
+    public function editTemplate(Request $request, $id)
+    {
+        $template = NotificationTemplate::query()->find($id);
+        $template->update([
+            'email_body' => $request->input('body'),
+        ]);
+        return $this->successResponse('Template updated successfully');
+    }
 }
