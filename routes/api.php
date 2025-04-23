@@ -106,6 +106,7 @@ Route::middleware(['auth:sanctum', 'admin.status'])->group(function () {
         Route::post('/settings', 'updateSettings');
         Route::get('/email-template', 'allEmailTemplate');
         Route::get('/email-template/{id}', 'viewTemplate');
+        Route::put('/email-template/{id}', 'editTemplate');
     });
 });
 
