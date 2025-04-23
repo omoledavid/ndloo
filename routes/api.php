@@ -183,11 +183,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/withdraw', 'withdraw');
         Route::get('/verify', 'verify');
     });
-    Route::prefix('generals')->group(function(){
-        Route::get('frontend', [SettingController::class, 'getSettings']);
-    });
-
+    
     Route::get('/matches', [MatchController::class, 'matches']);
     Route::get('/currencies', [CurrencyController::class, 'currencies']);
     Route::post('/abuse/{account}/report', [AbuseController::class, 'report']);
+});
+
+Route::prefix('generals')->group(function(){
+    Route::get('frontend', [SettingController::class, 'getSettings']);
 });
