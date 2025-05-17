@@ -9,6 +9,7 @@ use App\Support\Helpers\SmsSender;
 use App\Support\Repositories\SettingRepository;
 use App\Support\Services\SettingService;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         JsonResource::withoutWrapping();
+        Schema::defaultStringLength(191);
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 

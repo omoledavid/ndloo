@@ -163,4 +163,31 @@ class User extends Authenticatable
 
         return $token ? $token->token : null;
     }
+    public function livestreams()
+    {
+        return $this->hasMany(Livestream::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function sentGifts()
+    {
+        return $this->hasMany(GiftTransaction::class, 'sender_id');
+    }
+
+    public function receivedGifts()
+    {
+        return $this->hasMany(GiftTransaction::class, 'receiver_id');
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(Follow::class, 'following_id');
+    }
+
+    public function following()
+    {
+        return $this->hasMany(Follow::class, 'follower_id');
+    }
 }
