@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignUuid('receiver_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('livestream_id')->constrained()->onDelete('cascade');
-            $table->foreignUuid('gift_id')->constrained()->onDelete('cascade');
+            $table->foreignId('livestream_id')->constrained('livestreams')->onDelete('cascade');
+            $table->foreignUuid('gift_id')->constrained('gift_plans')->onDelete('cascade');
             $table->integer('quantity')->default(1);
             $table->timestamps();
         });

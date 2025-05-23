@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('category_livestream', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('livestream_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('livestream_id')->constrained('livestreams')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
