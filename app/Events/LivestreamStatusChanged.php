@@ -58,7 +58,7 @@ class LivestreamStatusChanged implements ShouldBroadcast
             'user' => [
                 'id' => $this->livestream->user->id,
                 'username' => $this->livestream->user->username,
-                'display_name' => $this->livestream->user->display_name,
+                'display_name' => $this->livestream->user->fullname,
             ],
         ];
     }

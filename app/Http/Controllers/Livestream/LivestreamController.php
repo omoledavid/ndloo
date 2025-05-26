@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Livestream;
 use App\Events\LivestreamStatusChanged;
 use App\Events\ViewerCountUpdated;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\livestream\LivestreamResource;
 use App\Models\Livestream;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,13 +17,22 @@ class LivestreamController extends Controller
         $livestreams = Livestream::with(['user', 'categories'])
             ->where('is_live', true)
             ->orderBy('viewer_count', 'desc')
-            ->paginate(10);
+            ->get();
             
-        return response()->json($livestreams);
+        return response()->json(LivestreamResource::collection($livestreams));
     }
     
     public function store(Request $request)
     {
+        // Check if user is already livestreaming
+        $existingLivestream = Livestream::where('user_id', auth()->id())
+            ->where('is_live', true)
+            ->first();
+
+        if ($existingLivestream) {
+            return response()->json(['message' => 'You are already livestreaming.'], 409);
+        }
+
         $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -59,7 +69,7 @@ class LivestreamController extends Controller
             $livestream->categories()->sync($request->categories);
         }
         
-        return response()->json($livestream->load('categories'), 201);
+        return response()->json(new LivestreamResource($livestream->load('categories')), 201);
     }
     
     public function show($id)
@@ -67,7 +77,7 @@ class LivestreamController extends Controller
         $livestream = Livestream::with(['user', 'categories', 'comments.user'])
             ->findOrFail($id);
             
-        return response()->json($livestream);
+        return response()->json(new LivestreamResource($livestream));
     }
     
     public function update(Request $request, $id)
@@ -79,17 +89,26 @@ class LivestreamController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         
+        // Use the same validation rules as in the store method
         $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:2048',
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
+            'ticket_amount' => 'nullable|numeric|min:0',
+            'goal_title' => 'nullable|string|max:255',
+            'goal_amount' => 'nullable|numeric|min:0',
+            'key_words' => 'nullable|string|max:255',
         ]);
-        
+
         $livestream->update([
             'title' => $request->title ?? $livestream->title,
             'description' => $request->description ?? $livestream->description,
+            'ticket_amount' => $request->ticket_amount ?? $livestream->ticket_amount,
+            'goal_title' => $request->goal_title ?? $livestream->goal_title,
+            'goal_amount' => $request->goal_amount ?? $livestream->goal_amount,
+            'key_words' => $request->key_words ?? $livestream->key_words,
         ]);
         
         if ($request->hasFile('thumbnail')) {
@@ -101,7 +120,7 @@ class LivestreamController extends Controller
             $livestream->categories()->sync($request->categories);
         }
         
-        return response()->json($livestream->load('categories'));
+        return response()->json(new LivestreamResource($livestream->load('categories')));
     }
     
    public function startStream($id)
@@ -125,7 +144,7 @@ class LivestreamController extends Controller
         // Broadcast the livestream status change
         broadcast(new LivestreamStatusChanged($livestream));
         
-        return response()->json($livestream);
+        return response()->json(new LivestreamResource($livestream));
     }
     
     public function endStream($id)

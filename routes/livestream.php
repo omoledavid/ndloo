@@ -19,10 +19,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Public routes
-Route::get('/livestreams', [LivestreamController::class, 'index']);
-Route::get('/livestreams/{id}', [LivestreamController::class, 'show']);
-Route::get('/livestreams/{id}/comments', [CommentController::class, 'index']);
-Route::get('/livestreams/{id}/gifts', [GiftController::class, 'getGiftTransactions']);
+Route::get('/livestreams', [LivestreamController::class, 'index'])->name('livestreams.index');
+Route::get('/livestreams/{id}', [LivestreamController::class, 'show'])->name('livestreams.show');
+Route::get('/livestreams/{id}/comments', [CommentController::class, 'index'])->name('livestreams.comments.index');
+Route::get('/livestreams/{id}/gifts', [GiftController::class, 'getGiftTransactions'])->name('livestreams.gifts.index');
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
@@ -39,12 +39,12 @@ Route::get('/users/{id}/following', [UserController::class, 'getFollowing']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Livestream routes
-    Route::post('/livestreams', [LivestreamController::class, 'store']);
-    Route::put('/livestreams/{id}', [LivestreamController::class, 'update']);
-    Route::delete('/livestreams/{id}', [LivestreamController::class, 'destroy']);
-    Route::post('/livestreams/{id}/start', [LivestreamController::class, 'startStream']);
-    Route::post('/livestreams/{id}/end', [LivestreamController::class, 'endStream']);
-    Route::put('/livestreams/{id}/viewer-count', [LivestreamController::class, 'updateViewerCount']);
+    Route::post('/livestreams', [LivestreamController::class, 'store'])->name('livestreams.store');
+    Route::put('/livestreams/{id}', [LivestreamController::class, 'update'])->name('livestreams.update');
+    Route::delete('/livestreams/{id}', [LivestreamController::class, 'destroy'])->name('livestreams.destroy');
+    Route::post('/livestreams/{id}/start', [LivestreamController::class, 'startStream'])->name('livestreams.start');
+    Route::post('/livestreams/{id}/end', [LivestreamController::class, 'endStream'])->name('livestreams.end');
+    Route::put('/livestreams/{id}/viewer-count', [LivestreamController::class, 'updateViewerCount'])->name('livestreams.updateViewerCount');
     
     // Comment routes
     Route::post('/livestreams/{livestreamId}/comments', [CommentController::class, 'store']);
