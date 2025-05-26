@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('livestreams', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->string('thumbnail')->nullable();

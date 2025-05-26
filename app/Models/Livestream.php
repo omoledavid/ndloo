@@ -20,6 +20,10 @@ class Livestream extends Model
         'started_at',
         'ended_at',
         'viewer_count',
+        'ticket_amount',
+        'goal_title',
+        'goal_amount',
+        'key_words',
     ];
 
     protected $casts = [
