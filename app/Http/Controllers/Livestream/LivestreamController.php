@@ -32,7 +32,7 @@ class LivestreamController extends Controller
         if ($existingLivestream) {
             return response()->json([
                 'message' => 'You are already livestreaming.',
-                'livestream' => new LivestreamResource($existingLivestream->load('categories'))
+                'livestream' => new LivestreamResource($existingLivestream->load('categories', 'user'))
             ], 200);
         }
 
