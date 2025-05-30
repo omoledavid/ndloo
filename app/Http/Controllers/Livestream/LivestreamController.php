@@ -30,7 +30,10 @@ class LivestreamController extends Controller
             ->first();
 
         if ($existingLivestream) {
-            return response()->json(['message' => 'You are already livestreaming.'], 409);
+            return response()->json([
+                'message' => 'You are already livestreaming.',
+                'livestream' => new LivestreamResource($existingLivestream->load('categories'))
+            ], 200);
         }
 
         $request->validate([
