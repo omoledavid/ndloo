@@ -33,14 +33,7 @@ class LivestreamResource extends JsonResource
                 'key_words' => $this->key_words,
             ],
             'relationships' => [
-                'user' => [
-                    'data' => $this->whenLoaded('user', function () {
-                        return [
-                            'type' => 'users',
-                            'id' => (string) $this->user->id,
-                        ];
-                    }),
-                ],
+                'user' =>  $this->whenLoaded('user'),
                 'categories' => [
                     'data' => $this->whenLoaded('categories', function () {
                         return $this->categories->map(function ($category) {
