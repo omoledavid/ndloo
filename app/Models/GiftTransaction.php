@@ -34,6 +34,6 @@ class GiftTransaction extends Model
 
     public function gift()
     {
-        return $this->belongsTo(Gift::class);
+        return $this->belongsTo(GiftPlan::class);
     }
 }
