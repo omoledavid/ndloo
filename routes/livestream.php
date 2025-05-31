@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Gift routes
     Route::post('/livestreams/{livestreamId}/gifts', [GiftController::class, 'sendGift']);
+    Route::post('livestreams/gifts/send/{livestreamId}', [GiftController::class, 'sendGift'])->name('gifts.send');
     
     // Follow routes
     Route::post('/users/{id}/follow', [UserController::class, 'follow']);
