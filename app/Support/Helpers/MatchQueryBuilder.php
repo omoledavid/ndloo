@@ -96,7 +96,6 @@ class MatchQueryBuilder
     {
         return $this->baseQuery
             ->with(['images', 'profile', 'country'])
-            ->excludeReactedUsers()
             ->inRandomOrder()
             ->limit(self::LIMIT)
             ->get();
