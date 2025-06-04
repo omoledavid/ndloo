@@ -77,10 +77,26 @@ class MatchQueryBuilder
         return $this;
     }
 
+    public function excludeReactedUsers(): self
+    {
+        $userId = $this->request->user()->id;
+        
+        $this->baseQuery = $this->baseQuery->whereNotExists(function ($query) use ($userId) {
+            $query->select('id')
+                ->from('reactions')
+                ->whereColumn('recipient', 'users.id')
+                ->where('actor', $userId)
+                ->whereIn('type', ['like', 'block']);
+        });
+
+        return $this;
+    }
+
     public function get()
     {
         return $this->baseQuery
             ->with(['images', 'profile', 'country'])
+            ->excludeReactedUsers()
             ->inRandomOrder()
             ->limit(self::LIMIT)
             ->get();
