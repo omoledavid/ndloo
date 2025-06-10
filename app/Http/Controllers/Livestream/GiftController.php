@@ -27,6 +27,20 @@ class GiftController extends Controller
             'gift_id' => 'required|exists:gift_plans,id',
             'quantity' => 'required|integer|min:1|max:100',
         ]);
+        $sender = auth()->user();
+        if (!$sender) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        $giftPlan = GiftPlan::findOrFail($request->gift_id);
+        if ($sender->wallet < $giftPlan->amount * $request->quantity) {
+            return response()->json(['message' => 'Insufficient funds'], 400);
+        }
+        if (!$sender->active) {
+            return response()->json(['message' => 'Your account is inactive'], 403);
+        }
+        if (!$sender->status) {
+            return response()->json(['message' => 'Your account is not verified'], 403);
+        }
 
         $livestream = Livestream::findOrFail($livestreamId);
 
@@ -48,6 +62,7 @@ class GiftController extends Controller
         if ($request->quantity < 1 || $request->quantity > 100) {
             return response()->json(['message' => 'Quantity must be between 1 and 100'], 400);
         }
+
 
         $this->giftService->purchase($gift, $recipient);
 
