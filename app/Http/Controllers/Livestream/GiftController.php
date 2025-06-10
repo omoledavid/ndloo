@@ -42,20 +42,27 @@ class GiftController extends Controller
             return response()->json(['message' => 'Your account is not verified'], 403);
         }
 
-        $livestream = Livestream::findOrFail($livestreamId);
+        $livestream = Livestream::query()->where('id', $livestreamId)->first();
+        if (!$livestream) {
+            return response()->json(['message' => 'Livestream not found'], 404);
+        }
+        if ($livestream->user_id == $sender->id) {
+            return response()->json(['message' => 'You cannot send gifts to your own livestream'], 400);
+        }
+        $livestream->update(['goal_progress' => $livestream->goal_progress + ($giftPlan->amount * $request->quantity)]);
 
         if (!$livestream->is_live) {
             return response()->json(['message' => 'Cannot send gifts to inactive livestreams'], 400);
         }
 
-        $gift = GiftPlan::where('id',$request->gift_id)->first();
+        $gift = GiftPlan::where('id', $request->gift_id)->first();
         if (!$gift) {
             return response()->json(['message' => 'Gift not found'], 404);
         }
         if ($gift->status != true) {
             return response()->json(['message' => 'Gift is not available'], 400);
         }
-        $recipient = User::where('id',$livestream->user_id)->first();
+        $recipient = User::where('id', $livestream->user_id)->first();
         if (!$recipient) {
             return response()->json(['message' => 'Recipient not found'], 404);
         }
