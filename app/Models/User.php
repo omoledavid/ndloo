@@ -47,6 +47,8 @@ class User extends Authenticatable
         'active',
         'status',
         'token',
+        'is_online',
+        'last_seen_at',
     ];
 
     /**
@@ -71,6 +73,8 @@ class User extends Authenticatable
             'pushNotice' => 'bool',
             'active' => 'bool',
             'is_admin' => 'bool',
+            'is_online' => 'bool',
+            'last_seen_at' => 'datetime',
         ];
     }
 
