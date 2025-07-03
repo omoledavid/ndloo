@@ -81,7 +81,7 @@ class GiftService extends BaseService
                     'amount' => $giftPlan->amount,
                     'recipient' => $recipient->firstname,
                 ], ['email']);
-                notify($recipient, 'GIFT_SENT',[
+                notify($recipient, 'GIFT_RECEIVED',[
                     'amount' => $giftPlan->amount,
                     'recipient' => $sender->firstname,
                 ], ['email']);
