@@ -18,6 +18,7 @@ class Message extends Model
         'content',
         'media',
         'read',
+        'type'
     ];
 
     protected function casts(): array

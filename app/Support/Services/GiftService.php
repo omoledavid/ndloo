@@ -91,7 +91,8 @@ class GiftService extends BaseService
                 $message = Message::create([
                     'sender' => $sender->id,
                     'recipient' => $recipient->id,
-                    'content' => 'A gift has been sent',
+                    'type' => 'gift',
+                    'content' => $giftPlan->name,
                     //'media' => $media,
                 ]);
                 $message->update(['created_at' => date('Y-m-d H:i:s')]);
