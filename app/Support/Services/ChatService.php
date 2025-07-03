@@ -9,6 +9,7 @@ use App\Contracts\Enums\MessageStates;
 use App\Http\Resources\MessageResource;
 use App\Jobs\PushNotificationJob;
 use App\Models\Message;
+use App\Models\Reaction;
 use App\Models\User;
 use App\Support\Helpers\FileUpload;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +31,7 @@ class ChatService extends BaseService
             ->limit(self::LIMIT);
 
         $messages = $request->query('offset')
-            ? $baseQuery->offset($request->query('offset'))->get()//->reverse()
+            ? $baseQuery->offset($request->query('offset'))->get() //->reverse()
             : $baseQuery->get();
 
         $users = array_unique(array_merge($messages->groupBy('sender')->keys()->toArray(), $messages->groupBy('recipient')->keys()->toArray()));
@@ -89,6 +90,7 @@ class ChatService extends BaseService
                      $media[] = FileUpload::uploadFile($medium, folder: 'chat');
                  }
              }*/
+            $this->checkIfBlocked($request->user()->id,$recipient->id);
 
             //check message subscription and count
             $currentSubscription = $request->user()->subscriptions[0];
@@ -150,9 +152,12 @@ class ChatService extends BaseService
                     ->where('recipient', auth()->id());
             })
             ->with([
-                'sender', 'recipient',
-                'sender.images', 'recipient.images',
-                'sender.profile', 'recipient.profile'
+                'sender',
+                'recipient',
+                'sender.images',
+                'recipient.images',
+                'sender.profile',
+                'recipient.profile'
             ])
             ->orderBy('created_at', 'asc');
 
@@ -178,5 +183,26 @@ class ChatService extends BaseService
         ])->update(['read' => MessageStates::READ]);
 
         return $this->successResponse();
+    }
+    private function checkIfBlocked($userId, $recieverId)
+    {
+        $senderId = $userId; // or $request->user()->id;
+        $recipientId = $recieverId;
+
+        $isBlocked = Reaction::query()
+            ->where('type', 'block')
+            ->where(function ($query) use ($senderId, $recipientId) {
+                $query->where(function ($q) use ($senderId, $recipientId) {
+                    $q->where('actor', $senderId)
+                        ->where('recipient', $recipientId);
+                })->orWhere(function ($q) use ($senderId, $recipientId) {
+                    $q->where('actor', $recipientId)
+                        ->where('recipient', $senderId);
+                });
+            })->exists();
+
+        if ($isBlocked) {
+            return $this->errorResponse('Messaging not allowed. One of the users has blocked the other.');
+        }
     }
 }
