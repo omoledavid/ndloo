@@ -120,7 +120,7 @@ Route::controller(PasswordResetController::class)->group(function () {
 
 Route::get('paystack/payment/callback', [PaymentController::class, 'callback'])->name('paystack.callback');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum','update.last_seen'])->group(function () {
     Route::controller(BoostController::class)->group(function () {
         Route::get('/user-boost/plans', 'plans');
         Route::post('/profile/boost/{plan}', 'boost');
