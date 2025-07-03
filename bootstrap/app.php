@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'admin.status' =>\App\Http\Middleware\IsAdmin::class,
             'subAdmin.status' => \App\Http\Middleware\SubAdminMiddleware::class,
+            'update.last_seen' => \App\Http\Middleware\UpdateLastSeen::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
