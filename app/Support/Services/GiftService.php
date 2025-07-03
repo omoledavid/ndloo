@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Support\Services;
 
+use App\Contracts\DataObjects\NotificationData;
 use App\Contracts\DataObjects\TransactionData;
 use App\Contracts\Enums\GiftStatus;
 use App\Contracts\Enums\TransactionIcons;
 use App\Contracts\Enums\TransactionTypes;
 use App\Http\Resources\GiftPlanResource;
+use App\Jobs\PushNotificationJob;
 use App\Models\GiftPlan;
+use App\Models\Message;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserGift;
@@ -42,7 +45,7 @@ class GiftService extends BaseService
         try {
             Cache::lock(request()->user()->id, 10)->block(10, function () use ($giftPlan, $recipient) {
                 $sender                 =  User::where('id', request()->user()->id)->first();
-                    $senderBalanceAfter     =  floatval(bcsub(strval($sender->wallet), strval($giftPlan->amount), 2));
+                $senderBalanceAfter     =  floatval(bcsub(strval($sender->wallet), strval($giftPlan->amount), 2));
                 $recipientBalanceAfter  =  floatval(bcadd(strval($recipient->wallet), strval($giftPlan->amount), 2));
 
                 if ($senderBalanceAfter < 0) {
@@ -77,17 +80,34 @@ class GiftService extends BaseService
                         'usdAmount' => $giftPlan->amount,
                     ])->toArray());
                 });
-                notify($sender, 'GIFT_SENT',[
+                notify($sender, 'GIFT_SENT', [
                     'amount' => $giftPlan->amount,
                     'recipient' => $recipient->firstname,
                 ], ['email']);
-                notify($recipient, 'GIFT_RECEIVED',[
+                notify($recipient, 'GIFT_RECEIVED', [
                     'amount' => $giftPlan->amount,
-                    'recipient' => $sender->firstname,
+                    'sender' => $sender->firstname,
                 ], ['email']);
+                $message = Message::create([
+                    'sender' => $sender->id,
+                    'recipient' => $recipient->id,
+                    'content' => 'A gift has been sent',
+                    //'media' => $media,
+                ]);
+                $message->update(['created_at' => date('Y-m-d H:i:s')]);
+                $message->load('sender');
 
-//                $sender->notify(new GiftSentNotice($recipient, $giftPlan->amount));
-//                $recipient->notify(new GiftReceivedNotice($sender, $giftPlan->amount));
+                PushNotificationJob::dispatchAfterResponse(
+                    $recipient,
+                    NotificationData::fromArray([
+                        'title' => __('responses.newMessage'),
+                        'body' => $sender->firstname . ': A gift has been sent',
+                        'data' => []
+                    ])
+                );
+
+                //                $sender->notify(new GiftSentNotice($recipient, $giftPlan->amount));
+                //                $recipient->notify(new GiftReceivedNotice($sender, $giftPlan->amount));
             });
 
             return $this->successResponse(__('responses.giftSent'));
@@ -139,7 +159,7 @@ class GiftService extends BaseService
             $giftIsMine->save();
 
             DB::commit();
-            notify($request->user(), 'GIFT_REDEEMED',[
+            notify($request->user(), 'GIFT_REDEEMED', [
                 'gift-amount' => $giftAmount,
                 'amount' => $finalAmount,
             ], ['email']);

@@ -90,7 +90,10 @@ class ChatService extends BaseService
                      $media[] = FileUpload::uploadFile($medium, folder: 'chat');
                  }
              }*/
-            $this->checkIfBlocked($request->user()->id,$recipient->id);
+            
+            // This implementation checks if the sender is blocked by the recipient before sending a message.
+            // If checkIfBlocked throws an exception or returns an error, it should be handled appropriately.
+            $this->checkIfBlocked($request->user()->id, $recipient->id);
 
             //check message subscription and count
             $currentSubscription = $request->user()->subscriptions[0];
