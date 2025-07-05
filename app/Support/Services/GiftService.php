@@ -93,6 +93,7 @@ class GiftService extends BaseService
                     'recipient' => $recipient->id,
                     'type' => 'gift',
                     'content' => $giftPlan->name,
+                    'gift_icon' => $giftPlan->icon,
                     //'media' => $media,
                 ]);
                 $message->update(['created_at' => date('Y-m-d H:i:s')]);
