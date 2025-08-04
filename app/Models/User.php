@@ -81,23 +81,23 @@ class User extends Authenticatable
     public function wallet(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => $value / 100,
-            set: fn (int $value) => $value * 100
+            get: fn(int $value) => $value / 100,
+            set: fn(int $value) => $value * 100
         );
     }
 
     public function credits(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => $value / 100,
-            set: fn (int $value) => $value * 100
+            get: fn(int $value) => $value / 100,
+            set: fn(int $value) => $value * 100
         );
     }
 
     public function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => asset($value),
+            get: fn(string $value) => asset($value),
 
         );
     }
@@ -124,7 +124,27 @@ class User extends Authenticatable
 
     public function subscriptions(): BelongsToMany
     {
-        return $this->belongsToMany(SubscriptionPlan::class)->withPivot('active', 'message_count', 'expires_on');
+        return $this->belongsToMany(SubscriptionPlan::class);
+    }
+    public function mySubscriptions(): HasMany
+    {
+        return $this->HasMany(NdSubscription::class, 'user_id');
+    }
+    public function activeSubscription()
+    {
+        return $this->mySubscriptions()
+            ->where(function ($query) {
+                $now = now();
+                $query->where(function ($q) use ($now) {
+                    $q->where('starts_at', '<=', $now)
+                      ->where('ends_at', '>=', $now);
+                })
+                ->orWhere(function ($q) {
+                    $q->whereDate('starts_at', '=', now()->toDateString())
+                      ->whereDate('ends_at', '=', now()->toDateString());
+                });
+            })
+            ->latest();
     }
 
     public function boosts(): BelongsToMany

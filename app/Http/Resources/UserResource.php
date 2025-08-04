@@ -15,12 +15,14 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        return ['subscriptions' => $this->subscriptions,
+        return [
+            'subscriptions' => $this->subscriptions,
             'profile' => $this->profile,
             'country' => $this->country,
             'images' => $this->images,
             'myLikes' => $this->myLikes()->where('actor', auth()->id())->pluck('recipient')->toArray(),
             'blockList' => $this->blockList->pluck('recipient')->toArray(),
-            ...parent::toArray($request)];
+            ...parent::toArray($request)
+        ];
     }
 }
