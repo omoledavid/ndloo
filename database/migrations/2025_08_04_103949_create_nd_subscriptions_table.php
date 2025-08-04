@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->foreignId('plan_id')->constrained('nd_plans')->cascadeOnDelete();
             $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('ends_at')->nullable();
             $table->timestamps();
             
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
