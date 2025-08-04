@@ -193,3 +193,4 @@ Route::prefix('generals')->group(function(){
     Route::get('frontend', [SettingController::class, 'getSettings']);
 });
 require __DIR__.'/livestream.php';
+require __DIR__.'/v2/users.php';
