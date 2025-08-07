@@ -10,6 +10,7 @@ use App\Support\Repositories\SettingRepository;
 use App\Support\Services\SettingService;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
@@ -53,5 +54,8 @@ class AppServiceProvider extends ServiceProvider
                     ->uncompromised()
                 : Password::min(8);
         });
+        if (app()->environment('production')) {
+            URL::forceRootUrl(config('app.url') . '/public');
+        }
     }
 }
