@@ -54,8 +54,8 @@ class AppServiceProvider extends ServiceProvider
                     ->uncompromised()
                 : Password::min(8);
         });
-        // if (app()->environment('production')) {
-        //     URL::forceRootUrl(config('app.url') . '/public');
-        // }
+        if (app()->environment('production')) {
+            URL::forceRootUrl(config('app.url') . '/public');
+        }
     }
 }
