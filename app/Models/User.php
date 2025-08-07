@@ -4,6 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Contracts\Enums\ReactionTypes;
+use App\Contracts\Enums\UserType;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
 
@@ -76,6 +80,25 @@ class User extends Authenticatable
             'is_online' => 'bool',
             'last_seen_at' => 'datetime',
         ];
+    }
+    public function getFilamentName(): string
+    {
+        // Concatenate firstname and lastname and ensure it's not null
+        if ($this->firstname && $this->lastname) {
+            return $this->firstname . ' ' . $this->lastname;
+        }
+
+        // If either firstname or lastname is null, return a fallback value
+        return 'No Name Available';
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($this->type == UserType::ADMIN->value || $this->type == UserType::SUPER_ADMIN->value) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function wallet(): Attribute
