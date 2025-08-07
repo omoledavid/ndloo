@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\NdplanResource\Pages;
 use App\Filament\Resources\NdplanResource\RelationManagers;
-use App\Models\Ndplan;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NdplanResource extends Resource
 {
-    protected static ?string $model = Ndplan::class;
+    protected static ?string $model = \App\Models\Ndplan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationLabel = 'Plans';
