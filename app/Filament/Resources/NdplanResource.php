@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NdplanResource extends Resource
 {
-    protected static ?string $model = \App\Models\Ndplan::class;
+    protected static ?string $model = \App\Models\NdPlan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationLabel = 'Plans';
