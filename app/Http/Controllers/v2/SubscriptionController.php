@@ -39,7 +39,7 @@ class SubscriptionController extends BaseService
     {
         $subscription = auth()->user()->activeSubscription()->first();
         if (!$subscription) {
-            return $this->error('No active subscription found');
+            return $this->ok('No active subscription found');
         }
         return $this->ok('Subscription fetched successfully', new SubscriptionResource($subscription));
     }

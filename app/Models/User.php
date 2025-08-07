@@ -133,17 +133,6 @@ class User extends Authenticatable
     public function activeSubscription()
     {
         return $this->mySubscriptions()
-            ->where(function ($query) {
-                $now = now();
-                $query->where(function ($q) use ($now) {
-                    $q->where('starts_at', '<=', $now)
-                      ->where('ends_at', '>=', $now);
-                })
-                ->orWhere(function ($q) {
-                    $q->whereDate('starts_at', '=', now()->toDateString())
-                      ->whereDate('ends_at', '=', now()->toDateString());
-                });
-            })
             ->latest();
     }
 
