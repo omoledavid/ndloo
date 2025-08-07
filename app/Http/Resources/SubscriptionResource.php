@@ -21,7 +21,7 @@ class SubscriptionResource extends JsonResource
                 'starts_at' => $this->starts_at?->toDateTimeString(),
                 'ends_at' => $this->ends_at?->toDateTimeString(),
                 'plan' => new PlanResource($this->plan),
-                'user' => new UserResource($this->user),
+                // 'user' => new UserResource($this->user),
             ],
         ];
     }

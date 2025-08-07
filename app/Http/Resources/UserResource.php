@@ -16,6 +16,7 @@ class UserResource extends JsonResource
     {
 
         return [
+            'activeSubscription' => new SubscriptionResource($this->activeSubscription()->first()),
             'subscriptions' => $this->subscriptions,
             'profile' => $this->profile,
             'country' => $this->country,

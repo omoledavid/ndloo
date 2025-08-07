@@ -19,7 +19,7 @@ class SubscriptionService
     public function subscribe(User $user, NdPlan $plan): NdSubscription
     {
         // Check if user already has an active subscription
-        $existingSubscription = $user->activeSubscription();
+        $existingSubscription = $user->activeSubscription()->first();
 
         // If user has an active subscription
         if ($existingSubscription) {
@@ -40,7 +40,7 @@ class SubscriptionService
             'user_id' => $user->id,
             'plan_id' => $plan->id,
             'starts_at' => now(),
-            'ends_at' => now()->addDays($plan->duration_days),
+            'ends_at' => $plan->duration_days ? now()->addDays($plan->duration_days) : null,
         ]);
 
         // Initialize feature usage

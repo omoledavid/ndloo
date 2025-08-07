@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price', 8, 2);
-            $table->integer('duration_days'); // e.g. 30
+            $table->integer('duration_days')->nullable(); // e.g. 30
             $table->timestamps();
         });
     }
