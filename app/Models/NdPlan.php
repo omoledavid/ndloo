@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class NdPlan extends Model
 {
+    protected $table = 'nd_plans';
     protected $fillable = ['name', 'price', 'duration_days'];
 
     public function features(): BelongsToMany
