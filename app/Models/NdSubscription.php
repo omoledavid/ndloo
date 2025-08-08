@@ -36,6 +36,19 @@ class NdSubscription extends Model
 
     public function isActive(): bool
     {
-        return now()->between($this->starts_at, $this?->ends_at);
+        $now = now();
+        
+        // Check if subscription has started
+        if ($now->lt($this->starts_at)) {
+            return false;
+        }
+        
+        // If ends_at is null, subscription is active (no end date)
+        if ($this->ends_at === null) {
+            return true;
+        }
+        
+        // Check if subscription has ended
+        return $now->lte($this->ends_at);
     }
 }
