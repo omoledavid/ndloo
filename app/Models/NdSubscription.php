@@ -36,6 +36,6 @@ class NdSubscription extends Model
 
     public function isActive(): bool
     {
-        return now()->between($this->starts_at, $this->ends_at);
+        return now()->between($this->starts_at, $this?->ends_at);
     }
 }
