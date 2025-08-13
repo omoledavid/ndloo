@@ -57,5 +57,7 @@ return [
     'likeMessage' => ':name liked your profile',
     'cannotLike' => 'You can not like or unlike yourself',
     'giftNotMine' => 'Gift is not mine.',
+    'nudityDetected' => 'Nudity detected. Please upload a different image.',
+    'faceDetectionFailed' => 'Profile picture must contain exactly one face.',
 
 ];

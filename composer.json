@@ -10,6 +10,7 @@
         "firebase/php-jwt": "^6.11",
         "get-stream/stream": "^7.1",
         "giggsey/libphonenumber-for-php": "^8.13",
+        "google/cloud-vision": "^2.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^11.0",
         "laravel/reverb": "^1.5",

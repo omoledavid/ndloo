@@ -8,10 +8,14 @@ use App\Models\ProfileImage;
 use App\Models\User;
 use App\Support\Services\ProfileService;
 use Illuminate\Http\JsonResponse;
-
+use App\Services\VisionService;
 class ProfileController extends Controller
 {
-    public function __construct(private readonly ProfileService $profileService) {}
+    protected $vision;
+    public function __construct(private readonly ProfileService $profileService, VisionService $vision)
+    {
+        $this->vision = $vision;
+    }
 
     public function profile(User $user): JsonResponse
     {
@@ -35,6 +39,7 @@ class ProfileController extends Controller
     public function viewAuthUser()
     {
         $user =  auth()->user();
+
         return $user;
     }
 }
