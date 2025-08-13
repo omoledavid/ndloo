@@ -1,4 +1,4 @@
 *
 !public/
-!google/
+google/*
 !.gitignore
