@@ -6,6 +6,7 @@ export default {
         "./resources/**/*.js",
         "./resources/**/*.vue",
         "node_modules/preline/dist/*.js",
+        "./resources/views/filament/tables/columns/*.blade.php"
     ],
     theme: {
         extend: {},

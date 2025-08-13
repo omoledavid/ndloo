@@ -100,36 +100,18 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('firstname')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('lastname')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('username')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('age')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\ViewColumn::make('profile')
+                    ->label('User')
+                    ->view('filament.tables.columns.user-profile'),
                 Tables\Columns\TextColumn::make('wallet')
+                    ->label('Wallet Balance')
                     ->numeric()
+                    ->formatStateUsing(fn ($state) => $state . ' USD')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('credits')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('gender')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('longitude')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('latitude')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('dob')
                     ->dateTime()
