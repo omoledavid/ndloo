@@ -139,7 +139,7 @@ class GiftService extends BaseService
 
             // Subtract the charge from the gift amount
             // $finalAmount = $giftAmount - $chargeAmount;
-            $finalAmount = round($giftAmount - $chargeAmount, 2, mode: PHP_ROUND_HALF_DOWN);
+            $finalAmount = intval(round($giftAmount - $chargeAmount));
 
             // Update user's wallet
             $user = $user = User::query()->where('id', $request->user()->id)->first();
