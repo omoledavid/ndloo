@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "bezhansalleh/filament-shield": "^3.3",
         "filament/filament": "^3.3",
         "firebase/php-jwt": "^6.11",
         "get-stream/stream": "^7.1",

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UploadImageRequest;
+use App\Models\GiftPlan;
 use App\Models\ProfileImage;
 use App\Models\User;
 use App\Support\Services\ProfileService;
@@ -38,7 +39,7 @@ class ProfileController extends Controller
     }
     public function viewAuthUser()
     {
-        $user =  auth()->user();
+        $user =  GiftPlan::findOrFail('jksfdkj343kjk');
 
         return $user;
     }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Contracts\Enums\UserStates;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\UserResource\Widgets\UsersOverview;
+use App\Filament\Resources\UserResource\Widgets\SignUpChart;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
@@ -23,7 +24,8 @@ class ListUsers extends ListRecords
     public function getHeaderWidgets(): array
     {
         return [
-            UsersOverview::class
+            UsersOverview::class,
+            SignUpChart::class,
         ];
     }
     public function getTabs(): array

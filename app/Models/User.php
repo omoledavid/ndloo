@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Contracts\Enums\ReactionTypes;
 use App\Contracts\Enums\UserType;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -18,10 +19,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
-    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes, HasRoles, HasPanelShield;
 
     /**
      * The attributes that are mass assignable.
@@ -81,6 +83,7 @@ class User extends Authenticatable implements FilamentUser, HasName
             'last_seen_at' => 'datetime',
         ];
     }
+
     public function getFilamentName(): string
     {
         // Concatenate firstname and lastname and ensure it's not null

@@ -17,7 +17,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-m-user-group';
 
     public static function form(Form $form): Form
     {
@@ -121,18 +121,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('avatar')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('pushNotice')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('is_admin')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('is_online')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('last_seen_at')
                     ->dateTime()
