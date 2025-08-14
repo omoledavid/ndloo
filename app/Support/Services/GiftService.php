@@ -141,9 +141,14 @@ class GiftService extends BaseService
             $finalAmount = $giftAmount - $chargeAmount;
 
             // Update user's wallet
-            $request->user()->update([
-                'wallet' => $request->user()->wallet + $finalAmount,
-            ]);
+            try {
+                $request->user()->update([
+                    'wallet' => $request->user()->wallet + $finalAmount,
+                ]);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return $this->errorResponse(__('responses.unknownError'));
+            }
 
 
 
