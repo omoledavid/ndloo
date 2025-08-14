@@ -142,7 +142,7 @@ class GiftService extends BaseService
 
             // Update user's wallet
             $user = $user = User::query()->where('id', $request->user()->id)->first();
-            $user->increment('wallet', $finalAmount);
+            $user->increment('wallet', $finalAmount * 100);
 
 
 
