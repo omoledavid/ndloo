@@ -59,7 +59,7 @@ class ProfileService extends BaseService
 
             // Build local path and public URL
             $localPath = storage_path('app/public/' . $uploadedFile);
-            $publicUrl = env('APP_URL') . '/storage/' . $uploadedFile;
+            $publicUrl = env('APP_URL') . '/public/storage/' . $uploadedFile;
 
             // Nudity check
             $safeCheck = $this->vision->detectAdultContent($localPath);

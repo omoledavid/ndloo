@@ -154,7 +154,7 @@ class GiftService extends BaseService
             Transaction::create(TransactionData::fromArray([
                 'name' => TransactionTypes::GIFT_SOLD->value,
                 'user_id' => $user->id,
-                'amount' => $gift->plan->amount / 2,
+                'amount' => $finalAmount,
                 'icon' => TransactionIcons::GIFT->value,
                 'currency' => 'USD',
                 'usdAmount' => $finalAmount,
