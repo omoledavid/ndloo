@@ -141,21 +141,23 @@ class GiftService extends BaseService
             $finalAmount = $giftAmount - $chargeAmount;
 
             // Update user's wallet
+            $user = $request->user();
             try {
-                $request->user()->update([
-                    'wallet' => 100,
+                $user->update([
+                    'wallet' => $user->wallet + $finalAmount,
                 ]);
             } catch (\Throwable $e) {
                 DB::rollBack();
                 return $this->errorResponse(__('responses.unknownError'));
-            }
+            };
+            Log::info('user bal: '.$user->wallet);
 
 
 
             //create transaction
             Transaction::create(TransactionData::fromArray([
                 'name' => TransactionTypes::GIFT_SOLD->value,
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
                 'amount' => $gift->plan->amount / 2,
                 'icon' => TransactionIcons::GIFT->value,
                 'currency' => 'USD',
@@ -166,7 +168,7 @@ class GiftService extends BaseService
             $giftIsMine->save();
 
             DB::commit();
-            notify($request->user(), 'GIFT_REDEEMED', [
+            notify($user, 'GIFT_REDEEMED', [
                 'gift-amount' => $giftAmount,
                 'amount' => $finalAmount,
             ], ['email']);
