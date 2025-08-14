@@ -142,9 +142,7 @@ class GiftService extends BaseService
 
             // Update user's wallet
             $user = $request->user();
-            $balAfter = $user->wallet + $finalAmount;
-            $user->wallet = $balAfter;
-            $user->save();
+            $user->increment('wallet', $finalAmount);
 
 
 
