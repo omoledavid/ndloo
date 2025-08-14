@@ -44,9 +44,9 @@ class GiftService extends BaseService
     {
         try {
             Cache::lock(request()->user()->id, 10)->block(10, function () use ($giftPlan, $recipient) {
-                $sender                 =  User::where('id', request()->user()->id)->first();
-                $senderBalanceAfter     =  floatval(bcsub(strval($sender->wallet), strval($giftPlan->amount), 2));
-                $recipientBalanceAfter  =  floatval(bcadd(strval($recipient->wallet), strval($giftPlan->amount), 2));
+                $sender = User::where('id', request()->user()->id)->first();
+                $senderBalanceAfter = floatval(bcsub(strval($sender->wallet), strval($giftPlan->amount), 2));
+                $recipientBalanceAfter = floatval(bcadd(strval($recipient->wallet), strval($giftPlan->amount), 2));
 
                 if ($senderBalanceAfter < 0) {
                     throw new \Exception(__('responses.insufficientFunds'));
@@ -57,26 +57,26 @@ class GiftService extends BaseService
                     $recipient->update(['credits' => $recipientBalanceAfter]);
 
                     UserGift::create([
-                        'user_id'      => $recipient->id,
-                        'sender_id'    => $sender->id,
+                        'user_id' => $recipient->id,
+                        'sender_id' => $sender->id,
                         'gift_plan_id' => $giftPlan->id,
                     ]);
 
                     Transaction::create(TransactionData::fromArray([
-                        'name'      => TransactionTypes::GIFT_SENT->value,
-                        'user_id'   => $sender->id,
-                        'amount'    => $giftPlan->amount,
-                        'icon'      => TransactionIcons::GIFT->value,
-                        'currency'  => 'USD',
+                        'name' => TransactionTypes::GIFT_SENT->value,
+                        'user_id' => $sender->id,
+                        'amount' => $giftPlan->amount,
+                        'icon' => TransactionIcons::GIFT->value,
+                        'currency' => 'USD',
                         'usdAmount' => $giftPlan->amount,
                     ])->toArray());
 
                     Transaction::create(TransactionData::fromArray([
-                        'name'      => TransactionTypes::GIFT_RECEIVED->value,
-                        'user_id'   => $recipient->id,
-                        'amount'    => $giftPlan->amount,
-                        'icon'      => $giftPlan->icon,
-                        'currency'  => 'USD',
+                        'name' => TransactionTypes::GIFT_RECEIVED->value,
+                        'user_id' => $recipient->id,
+                        'amount' => $giftPlan->amount,
+                        'icon' => $giftPlan->icon,
+                        'currency' => 'USD',
                         'usdAmount' => $giftPlan->amount,
                     ])->toArray());
                 });
@@ -143,15 +143,8 @@ class GiftService extends BaseService
             // Update user's wallet
             $user = $request->user();
             $balAfter = $user->wallet + $finalAmount;
-            try {
-                $user->update([
-                    'wallet' => $balAfter,
-                ]);
-            } catch (\Throwable $e) {
-                DB::rollBack();
-                return $this->errorResponse(__('responses.unknownError'));
-            };
-            Log::info('user bal: '.$user->wallet.' final amount: '.$finalAmount);
+            $user->wallet = $balAfter;
+            $user->save();
 
 
 
