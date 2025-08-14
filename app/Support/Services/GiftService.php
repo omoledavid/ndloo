@@ -143,7 +143,7 @@ class GiftService extends BaseService
             // Update user's wallet
             try {
                 $request->user()->update([
-                    'wallet' => $request->user()->wallet + $finalAmount,
+                    'wallet' => 100,
                 ]);
             } catch (\Throwable $e) {
                 DB::rollBack();
