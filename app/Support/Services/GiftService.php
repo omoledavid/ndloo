@@ -151,7 +151,7 @@ class GiftService extends BaseService
                 DB::rollBack();
                 return $this->errorResponse(__('responses.unknownError'));
             };
-            Log::info('user bal: '.$user->wallet);
+            Log::info('user bal: '.$user->wallet.' final amount: '.$finalAmount);
 
 
 
