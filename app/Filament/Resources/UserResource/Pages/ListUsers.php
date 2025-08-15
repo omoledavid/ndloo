@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Contracts\Enums\UserStates;
+use App\Filament\Resources\GiftPlanResource\Widgets\GiftPlanStat;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\UserResource\Widgets\UsersOverview;
 use App\Filament\Resources\UserResource\Widgets\SignUpChart;
@@ -26,6 +27,7 @@ class ListUsers extends ListRecords
         return [
             UsersOverview::class,
             SignUpChart::class,
+            GiftPlanStat::class,
         ];
     }
     public function getTabs(): array

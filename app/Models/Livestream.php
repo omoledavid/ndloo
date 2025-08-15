@@ -23,6 +23,7 @@ class Livestream extends Model
         'ticket_amount',
         'goal_title',
         'goal_amount',
+        'goal_progress',
         'key_words',
     ];
 

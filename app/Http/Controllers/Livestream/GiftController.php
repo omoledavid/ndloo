@@ -90,6 +90,7 @@ class GiftController extends Controller
         return response()->json([
             'message' => 'Gift sent successfully',
             'transaction' => $transaction->load(['gift', 'sender', 'receiver']),
+            'goal_progress' => $livestream->goal_progress
         ], 201);
     }
 
