@@ -22,7 +22,7 @@ class NdSubscriptionResource extends Resource
     protected static ?string $model = NdSubscription::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-    protected static ?string $label = 'Subscription plan';
+    protected static ?string $label = 'Subscriptions';
 
     public static function form(Form $form): Form
     {
@@ -105,7 +105,7 @@ class NdSubscriptionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('subscribeToPlan')
                     ->label('Subscribe to Plan')
                     ->icon('heroicon-o-plus-circle')

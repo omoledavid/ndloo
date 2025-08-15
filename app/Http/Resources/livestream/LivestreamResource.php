@@ -30,6 +30,7 @@ class LivestreamResource extends JsonResource
                 'ticket_amount' => $this->ticket_amount,
                 'goal_title' => $this->goal_title,
                 'goal_amount' => $this->goal_amount,
+                'goal_progress' => $this->goal_progress,
                 'key_words' => $this->key_words,
             ],
             'relationships' => [

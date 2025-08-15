@@ -33,40 +33,7 @@ class GiftPlanStat extends BaseWidget
         $activeGiftPlans = GiftPlan::where('status', 1)->count();
 
         return [
-            Stat::make('Total Subscription Plans', $totalSubscriptionPlans)
-                ->description('Available subscription plans')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success')
-                ->icon('heroicon-o-credit-card')
-                ->chart(SubscriptionPlan::query()
-                    ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->limit(7)
-                    ->pluck('count')
-                    ->toArray())
-                ->extraAttributes([
-                    'class' => 'cursor-pointer',
-                ]),
-
-            Stat::make('Total Subscribers', $totalSubscribers)
-                ->description('Active subscription users')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('info')
-                ->icon('heroicon-o-users')
-                ->chart(SubscriptionPlanUser::query()
-                    ->where('active', true)
-                    ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->limit(7)
-                    ->pluck('count')
-                    ->toArray())
-                ->extraAttributes([
-                    'class' => 'cursor-pointer',
-                ]),
-
-            Stat::make('Total Gift Plans', $totalGiftPlans)
+            Stat::make('Total Gifts', $totalGiftPlans)
                 ->description('Available gift options')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('warning')

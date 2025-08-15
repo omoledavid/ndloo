@@ -30,13 +30,14 @@ class ListNdSubscriptions extends ListRecords
     {
         return [
             'all' => Tab::make('All')
+                ->icon('heroicon-o-rectangle-stack')
                 ->badge(NdSubscription::count()),
 
             'Free' => Tab::make('Free')
                 ->modifyQueryUsing(function ($query) {
                     $query->where('name', 'Free');
                 })
-                ->icon('heroicon-o-check-badge')
+                ->icon('heroicon-o-sparkles')
                 ->badge(NdSubscription::whereHas('plan', function ($query) {
                     $query->where('name', 'Free');
                 })->count()),
@@ -47,7 +48,7 @@ class ListNdSubscriptions extends ListRecords
                         $query->where('name', 'Silver');
                     });
                 })
-                ->icon('heroicon-o-clock')
+                ->icon('heroicon-o-star')
                 ->badge(NdSubscription::whereHas('plan', function ($query) {
                     $query->where('name', 'Silver');
                 })->count()),
@@ -56,7 +57,7 @@ class ListNdSubscriptions extends ListRecords
                 ->modifyQueryUsing(function ($query) {
                     $query->where('name', 'Gold');
                 })
-                ->icon('heroicon-o-trash')
+                ->icon('heroicon-o-trophy')
                 ->badge(NdSubscription::whereHas('plan', function ($query) {
                     $query->where('name', 'Gold');
                 })->count()),
@@ -64,7 +65,7 @@ class ListNdSubscriptions extends ListRecords
                 ->modifyQueryUsing(function ($query) {
                     $query->where('name', 'Platinum');
                 })
-                ->icon('heroicon-o-shield-check')
+                ->icon('heroicon-o-fire')
                 ->badge(NdSubscription::whereHas('plan', function ($query) {
                     $query->where('name', 'Platinum');
                 })->count()),

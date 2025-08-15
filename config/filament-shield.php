@@ -73,7 +73,8 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
         'resources' => [],
@@ -88,5 +89,9 @@ return [
     'register_role_policy' => [
         'enabled' => true,
     ],
+    'styles' => [
+        'app' => asset('css/custom-filament.css'),
+    ],
+
 
 ];

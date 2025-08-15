@@ -17,7 +17,8 @@ class GiftPlanResource extends Resource
 {
     protected static ?string $model = GiftPlan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-gift';
+    protected static ?string $label = 'Gifts';
 
     public static function form(Form $form): Form
     {

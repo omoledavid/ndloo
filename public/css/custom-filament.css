@@ -1,0 +1,22 @@
+/* Sidebar Background Image */
+.filament-sidebar {
+    background-image: url('/images/sidebar-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Overlay */
+.filament-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity */
+    z-index: 1;
+}
+
+/* Make sure content is above overlay */
+.filament-sidebar > * {
+    position: relative;
+    z-index: 2;
+}
